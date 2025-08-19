@@ -1,0 +1,571 @@
+---
+title: "Python-R-Xenium.Rmd"
+author: "Nabila Rahman"
+date: "`r Sys.Date()`"
+output:
+  bookdown::gitbook:
+    code_folding: hide
+    toc_depth: 3
+    fig.caption: true
+    split_by: none    
+    self_contained: true
+    config:
+      toolbar:
+        position: fixed
+    bookdown::html_book:
+      code_folding: hide
+      css: toc.css
+editor_options:
+  chunk_output_type: console
+---
+
+```{r, include=F}
+
+library(Seurat)
+library(reticulate)
+library(ggplot2)
+library(tidyverse)
+library(ggplot2)
+library(patchwork)
+library(knitr)
+library(kableExtra)  # Optional for better formatting
+library(RANN)
+library(Matrix)
+
+# Set miniconda path (you already have this)
+Sys.setenv(RETICULATE_MINICONDA_PATH = "C:/Users/Nabila/AppData/Local/r-miniconda")
+
+# # Create new environment called "spatial_analysis" 
+# conda_create("spatial_env")
+
+# Activate the new environment
+use_condaenv("spatial_env", required = TRUE)
+
+# Verify you're using the right environment
+py_config()  # Should show your new environment path
+
+```
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE
+  , warning = FALSE
+  , message = FALSE
+  , fig.align = "center"
+  , cache = T
+)
+```
+
+```{r installpythonModules, include=F}
+#  INSTALL PYTHON PACKAGES
+
+py_install(
+      packages = c(
+        "pandas"
+        , "numpy"
+        , "scipy"
+        , "matplotlib"
+        , "seaborn"
+        , "scikit-learn"
+        , "annoy" # approximate nearest neighbor
+        , "POT"
+        , "hnswlib"
+        , "rpy2"
+        , "libpysal"      # Python spatial analysis library
+        , "esda"       # Exploratory spatial data analysis
+        , "pysal"         # Python spatial analysis library
+        , "geopandas"      # Geographic data handling
+        , "squidpy"
+        , "scanpy"
+        
+      )
+      , pip = TRUE
+)
+
+
+```
+
+```{python loadModules}
+
+import squidpy as sq   # The spatial analysis engine: cell-cell interactions, co-occurrence, network analysis
+import scanpy as sc    # Data Structure: Single-cell data handling (AnnData objects, basic preprocessing)
+import pandas as pd    # Data wrangling: handling coordinate tables, metadata, results
+import numpy as np     # Math operations: array handling, mathematical calculations
+
+#~~~~~~~~~~~~~~~~~~~~~~~
+# Configure scanpy
+#~~~~~~~~~~~~~~~~~~~~~~
+# sc.settings.verbosity = 0  # Only errors (silent)
+# sc.settings.verbosity = 1  # Errors + warnings  
+# sc.settings.verbosity = 2  # + important info
+# sc.settings.verbosity = 3  # + detailed progress (DEFAULT in our script)
+# sc.settings.verbosity = 4  # + debug info (very chatty)
+sc.settings.verbosity = 3
+
+```
+
+*From Nils' Tutorial*
+
+-    analysis.tar.gz / analysis.zarr.zip : secondary analysis results which can be explored with the XeniumExplorer software
+-    analysis_summary.html : Html report of the sample run, containing summary metrics and automated secondary analysis results
+-    aux_outputs.tar.gz : auxillary outputs with raw data before decoding (downsampled, no reprocessing possible from these files)
+-    cells.parquet / cells.csv.gz / cells.zarr.zip : cell metadata including cell spatial location saved in different file formats
+-    cell_feature_matrix.zarr.zip / cell_feature_matrix.h5 / cell_feature_matrix.tar.gz : cells x genes count matrices in different file formats
+-    cell_boundaries.parquet / cell_boundaries.csv.gz:
+-    experiment.xenium : experiment manifest file in JSON format that includes experiment metadata
+-    gene_panel.json : a copy of the gene panel file used in the experiment on the Xenium Analyzer instrument, the JSON schema contains gene name, ENSEMBL ID and gene coverage
+-    morphology.ome.tif : DAPI image of the sample
+-    nucleaus_boundaries.parquet / nucleus_boundaries.csv.gz :representation of the nucleus boundaries, each row represents a vertex in the boundary polygon of one nucleus
+-    transcripts.csv.gz / transcripts.parquet / transcripts.zarr.zip : the file contains one row for each decoded transcript with spatial coordinates, quality metrics and distance to nucleus
+
+More information: https://www.10xgenomics.com/support/software/xenium-onboard-analysis/latest/analysis/xoa-output-understanding-outputs
+
+*Note:* Legacy dataset' doesn't have's cells.csv.gz doesn't say how the cells were segmented. Normally this column shows: "cell_boundary", "nuclear_expansion", "multimodal", etc. You can't filter cells by segmentation method (not usually needed)
+```{r}
+
+# Use Seurat v5 for efficient loading and BUILT-IN spatial analysis and sketch immediately (Seurat v5 approach)
+xenium_obj <- LoadXenium("G:/SpatialOmics/Xenium/Raw/outs") %>%
+  SketchData(ncells = 50000)  # Sample first, then QC the sketch
+
+# Seurat automatically:
+# Filters on decoding quality (qv >= 20)
+# Keeps only real transcripts (is_gene = True)  
+# Excludes decoy/control barcodes
+# Assigns transcripts to cells based on cell boundaries
+
+```
+
+
+### Expected in this dataset
+
+-   Simple exploratory analysis with data using their Dataset provided with their bioRxiv pre-print.
+-   This is a legacy pre-release dataset, and some aspects such as file
+-   QC probe naming and image alignment have changed since.
+
+|  |  |
+|----------|--------------------------------------------------------------|
+| **Platform** | 10x Genomics’ subcellular Xenium In Situ platform |
+| **Dataset** | Human Breast Cancer (from 10x Genomics  bioRxiv pre-print |
+| **Note:** | Legacy Dataset - QC probe names and  image alignment changed since release. |
+
+From the loaded dataset there are:
+541 total features (genes + quality controls) split across 4 data types [ This will be 854 total features across 5 dataset if you use sketch. since an extra assay added. ]
+
+313 actual genes measured
+
+Quality control assays from Xenium:
+-    **BlankCodeword:** Measures background/noise levels
+-    **ControlCodeword**: Technical controls for data quality
+-    **ControlProbe**: Positive controls to verify the assay worked
+
+1 spatial slice
+This is the spatial coordinates and imaging data
+Contains cell positions, boundaries, and tissue image
+
+```{r}
+xenium_obj
+
+
+```
+
+
+## QC
+
+**Red Flags vs. Normal Variation:**
+
+-    **Concerning ranges:**
+    -    >20% outliers - suggests technical problems
+    -    Very low transcript counts (<5) - poor assay performance
+    -    Extreme high counts (>5,000) - major doublet issues
+    -    Many 0-gene cells (>15%) - poor segmentation
+
+-    **Normal Biological Variation:**
+    -    5-15% outliers - expected biological diversity
+    -    Some high-activity cells - metabolically active regions
+    -    Some low-activity cells - quiescent cell types
+    -    Few 0-gene cells (<5%) - normal segmentation errors
+
+```{r check-Counts-Genes-n, cache=F}
+
+# Reshape data for combined plotting
+plot_data <- xenium_obj@meta.data %>%
+  select(nCount_Xenium, nFeature_Xenium) %>%
+  gather(key = "metric", value = "value")
+
+# Find cells with extreme values
+ncount_outliers <- boxplot.stats(xenium_obj$nCount_Xenium)$out
+nfeature_outliers <- boxplot.stats(xenium_obj$nFeature_Xenium)$out
+
+# Calculate statistics
+total_cells <- ncol(xenium_obj)
+zero_genes <- sum(xenium_obj$nFeature_Xenium == 0)
+
+# Create combined boxplot
+ggplot(plot_data, aes(x = metric, y = value, fill = metric)) +
+  geom_boxplot(alpha = 0.7, outlier.colour = "red", outlier.size = 0.5) +
+  scale_fill_manual(values = c("lightblue", "lightcoral")) +
+  labs(title = "QC Metrics Distribution",
+       x = "Metric", y = "Value") +
+  theme_minimal() +
+  theme(legend.position = "none") +
+  facet_wrap(~metric, scales = "free_y")
+
+# Create summary table
+outlier_summary <- data.frame(
+  QC_Metric = c(
+    "Transcript Count Outliers"
+    , "Gene Count Outliers" 
+    , "Zero-Gene Cells"
+  )
+  , Count = c(
+    length(ncount_outliers)
+    , length(nfeature_outliers)
+    , zero_genes
+  )
+  , Percentage = paste0(
+    c(
+      round(length(ncount_outliers)/total_cells*100, 1)
+      , round(length(nfeature_outliers)/total_cells*100, 1)
+      , round(zero_genes/total_cells*100, 1)
+    ), "%"
+  )
+  , Range = c(
+    paste(min(ncount_outliers), "to", max(ncount_outliers))
+    , paste(min(nfeature_outliers), "to", max(nfeature_outliers))
+    , "0 genes"
+  )
+)
+
+# Display table
+kable(
+  outlier_summary
+  , caption = "Xenium Data Quality Summary - Within Range"
+  , col.names = c("QC Metric", "Count", "Percentage", "Range")
+)
+
+```
+
+## Filtering
+```{r}
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+# Check that gene features do not contain any decoy barcodes
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+gene_names <- rownames(xenium_obj@assays$sketch)
+
+# Check for legitimate gene symbols
+valid_gene_symbols <- all(grepl("^[A-Z][A-Z0-9-]*$", gene_names))
+
+# Check for legitimate ensembl ID
+#valid_gene_symbols <- all(grepl("^ENSG", gene_names))
+
+
+cat("All genes follow gene symbol pattern:", valid_gene_symbols, "\n")
+
+# Show some examples
+cat("First 10 gene symbols:", paste(head(gene_names, 10), collapse = ", "), "\n")
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+# Add % counts in top n genes
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+# Calculate top gene percentages (Seurat equivalent)
+calculate_top_gene_percent <- function(seurat_obj, top_n = c(10, 20, 50, 150), assay="sketch") {
+  
+  # Get expression matrix
+  expr_matrix <- GetAssayData(seurat_obj, assay = assay, slot = "counts")
+  
+  for(n in top_n) {
+    # For each cell, find top N genes and calculate percentage
+    top_pct <- apply(expr_matrix, 2, function(cell) {
+      top_genes <- head(sort(cell, decreasing = TRUE), n)
+      sum(top_genes) / sum(cell) * 100
+    })
+    
+    # Add to metadata
+    seurat_obj[[paste0("pct_counts_in_top_", n, "_genes")]] <- top_pct
+  }
+  
+  return(seurat_obj)
+}
+
+# Apply to your data
+xenium_obj <- calculate_top_gene_percent(xenium_obj)
+
+# Total transcripts per cell - Count
+p1 <- ggplot(xenium_obj@meta.data, aes(x = nCount_Xenium, )) +
+  geom_histogram(bins = 120, color="black", fill="skyblue") + labs(title = "Total transcripts per cell") + 
+  geom_vline(xintercept=5, color="red")
+
+# Unique transcripts per cell - Features
+p2 <- ggplot(xenium_obj@meta.data, aes(x = nFeature_Xenium)) +
+  geom_histogram(bins = 120, color="black", fill="skyblue") + labs(title = "Unique transcripts per cell") + 
+  geom_vline(xintercept=5, color="red") 
+  
+
+p1 | p2
+
+
+
+
+# Gentle filtering - only remove obvious junk
+xenium_obj <- subset(xenium_obj
+                     , subset = nFeature_Xenium > 5 &     # Remove cells with less than 5 gene cells
+                                          nCount_Xenium > 5  # Remove cells with less than 5 transcripts
+                     )        
+
+```
+
+### Basic processing (Seurat)
+
+```{r cache=F}
+
+xenium_obj <- SCTransform(xenium_obj, assay = 'sketch' )
+xenium_obj <- RunPCA(xenium_obj)
+
+# Determine optimal number of PCs
+ElbowPlot(
+  xenium_obj
+  , ndims = 50
+) +
+  ggtitle("ElbowPlot of PCA", subtitle = "standard deviation plateaus at PCA 20"  )
+
+
+# Find neighbors and clusters
+xenium_obj <- FindNeighbors(
+  xenium_obj
+  , dims = 1:20
+  , verbose = FALSE
+)
+
+xenium_obj <- RunUMAP(
+  xenium_obj
+  , reduction = "pca" 
+  , dims = 1:30
+)
+
+xenium_obj <- FindClusters(xenium_obj
+                           # , assay = 'sketch'  # arg  not needed
+                           , resolution = 0.5
+                           , verbose = FALSE
+                           )
+
+```
+
+
+```{r cache=F}
+
+
+p1 <- FeaturePlot(xenium_obj, features = "nCount_Xenium")
+p2 <- FeaturePlot(xenium_obj, features = "nFeature_Xenium") 
+p3 <- DimPlot(xenium_obj, group.by = "seurat_clusters")
+
+(p1 | p2) / ( p3 | plot_spacer())
+
+```
+Note: If the clusters do not appear clearly separated, this is due to errors in transcript to cell assignment due to imperfect segmentation. So you have to explore the effect of restricting transcript assignment based on distance to the segmented nucleus boundary. Unlike in python, Seurat already takes care of filters on decoding quality by setting "qv >= 20". Keeps only real transcripts (is_gene = True) & excludes decoy/control barcodes. Seurat also assigns transcripts to cells based on cell boundaries.
+
+
+```{r cache=F}
+
+# First, check if Xenium output includes nucleus distance
+transcripts_file <- "G:/SpatialOmics/Xenium/Raw/outs/transcripts.csv.gz"
+
+# Quick peek at transcript columns
+library(data.table)
+transcripts_sample <- fread(transcripts_file)
+colnames(transcripts_sample)
+
+# Look for nucleus_distance column
+"nucleus_distance" %in% colnames(transcripts_sample)
+
+
+# Filter transcripts based on nuclear distance ----#
+if("nucleus_distance" %in% colnames(transcripts_sample)) {
+  # Filter on nucleus distance 
+  # 0, 2 and 5 (μm) can also be thresholds to explore  (0  =   very strict,  5 is very permissive)
+  transcripts_sample <- transcripts_sample[nucleus_distance <= 0.5] 
+} else {
+  cat("No nucleus distance column - Seurat's default is fine\n")
+}
+   
+
+```
+No nucleus_distance column  found in  this dataset.
+
+## Spatial View of Clusters
+```{r}
+# Instead of SpatialDimPlot(), use:
+spatial_plot <- ImageDimPlot(
+  xenium_obj
+  , fov = names(xenium_obj@images)[1]  # Use available FOV
+  , group.by = "seurat_clusters"
+  , size = 0.7
+  , alpha = 0.8
+  , border.color = "NA" 
+) + 
+  labs(title = "Xenium Clusters - Spatial View") +
+  NoAxes()
+
+spatial_plot
+
+```
+
+## Find Cluster Markers
+
+```{r fig.width=10}
+
+# Find markers for all clusters at once
+cluster_markers <- FindAllMarkers(
+  xenium_obj
+  ,  only.pos = TRUE          # Only positive markers (like scanpy default)
+  , min.pct = 0.25          # Gene must be expressed in at least 25% of cells
+  , logfc.threshold = 0.25   # Minimum log fold change
+  , test.use = "wilcox"     # Wilcoxon test (scanpy default)
+  ,  verbose = TRUE
+)
+
+top5 <- cluster_markers %>%
+    group_by(cluster) %>%
+    dplyr::filter(avg_log2FC > 1 & p_val_adj < 0.001) %>%
+    slice_head(n = 5) %>%
+    ungroup() 
+
+DotPlot(xenium_obj
+        , features = unique(top5$gene)
+        ,  group.by = "seurat_clusters") + 
+  RotatedAxis()
+
+```
+
+
+## KDTree nearest neighbor search
+
+```{r}
+
+
+# First, extract spatial coordinates for different leiden clusters
+
+# Get spatial coordinates for all cells
+spatial_coords <- GetTissueCoordinates(xenium_obj, image = "fov")
+
+
+# Filter coordinates by leiden clusters
+leiden1_coords <- spatial_coords[xenium_obj$seurat_clusters == "1", ]
+leiden11_coords <- spatial_coords[xenium_obj$seurat_clusters == "11", ]
+
+#  Run KDTree NN search
+nn_result <- RANN::nn2(
+  data = leiden1_coords,      # Reference points (tree data)
+  query = leiden11_coords,    # Query points  
+  k = 1                       # Number of nearest neighbors
+)
+
+# Extract results
+distances <- nn_result$nn.dists[, 1]  # Distances to nearest neighbor
+indices <- nn_result$nn.idx[, 1]      # Indices of nearest neighbors
+
+# Create results dataframe
+nearest_neighbor_results <- data.frame(
+  query_cell = rownames(leiden11_coords),
+  nearest_leiden1_cell = rownames(leiden1_coords)[indices],
+  distance = distances
+)
+
+# Visualise distances
+hist(nearest_neighbor_results$distance, breaks=100, main="Distribution of Adjacent cells ", xlab="Euclidean Distance (um) between cell pairs", ylab="No. of cells")
+```
+
+## Check distances for all clusters
+```{r}
+
+# 1. Extract spatial coordinates
+coords <- GetTissueCoordinates(xenium_obj)
+
+# 2. Get cluster assignments
+clusters <- Idents(xenium_obj)  # Or xenium_seg$leiden if stored in metadata
+coords$cluster <- as.character(clusters[rownames(coords)])
+
+# Get all unique pairs (excluding self)
+cluster_levels <- sort(unique(coords$cluster))
+cluster_pairs <- expand.grid(source = cluster_levels, target = cluster_levels) %>%
+  filter(source != target)
+
+# Compute median nearest-neighbor distances for each cluster pair
+distance_summary <- lapply(seq_len(nrow(cluster_pairs)), function(i) {
+  source_cluster <- cluster_pairs$source[i]
+  target_cluster <- cluster_pairs$target[i]
+  
+  source_coords <- coords %>% filter(cluster == source_cluster) %>% select(x, y)
+  target_coords <- coords %>% filter(cluster == target_cluster) %>% select(x, y)
+  
+  if (nrow(source_coords) == 0 || nrow(target_coords) == 0) return(NULL)
+  
+  nn <- nn2(data = source_coords, query = target_coords, k = 1)
+  median_distance <- median(nn$nn.dists[, 1])
+  
+  data.frame(
+    target = target_cluster,
+    source = source_cluster,
+    median_distance = median_distance
+  )
+})
+
+# Combine
+distance_matrix_df <- do.call(rbind, distance_summary)
+
+# Optional: convert to wide format for matrix-like heatmap (e.g., pheatmap)
+# But for ggplot2, keep it tidy
+
+# Plot heatmap
+ggplot(distance_matrix_df, aes(x = source, y = target, fill = median_distance)) +
+  geom_tile(color = "white") +
+  scale_fill_viridis_c(option = "magma", direction = -1) +
+  labs(title = "Median Nearest-Neighbor Distance Between Clusters",
+       x = "Source Cluster", y = "Target Cluster", fill = "Median Distance") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+```
+
+
+```{r}
+
+library(Seurat)
+library(Matrix)
+library(dplyr)
+
+# Pseudobulk function
+pseudobulk_clusters <- function(xenium_obj, group.by = NULL, assay = "RNA", slot = "counts") {
+  # If no grouping provided, use Idents
+  if (is.null(group.by)) {
+    group.by <- "ident"
+    xenium_obj$ident <- Idents(xenium_obj)
+  }
+  
+  # Extract raw count matrix
+  counts <- GetAssayData(xenium_obj, assay = assay, slot = slot)
+  
+  # Get group assignments
+  group_ids <- xenium_obj[[group.by]][, 1]
+  
+  # For each group, sum the counts
+  pseudobulk_list <- tapply(colnames(counts), group_ids, function(cell_ids) {
+    Matrix::rowSums(counts[, cell_ids, drop = FALSE])
+  })
+  
+  # Combine into matrix
+  pseudobulk_matrix <- do.call(cbind, pseudobulk_list)
+  
+  # Set column names
+  colnames(pseudobulk_matrix) <- names(pseudobulk_list)
+  
+  return(pseudobulk_matrix)
+}
+
+pseudobulk <- pseudobulk_clusters(xenium_obj, group.by = NULL, assay = "sketch", slot = "counts")
+
+
+pseudobulk  %>% head %>% knitr::kable(caption="Pseudobulk of Spatial Data")
+
+  
+```
