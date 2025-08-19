@@ -1,0 +1,526 @@
+---
+title: "2-Cross-Slice-Comparison"
+author: "Nabila Rahman"
+date: "`r Sys.Date()`"
+output:
+  bookdown::gitbook:
+    code_folding: hide
+    toc_depth: 3
+    fig.caption: true
+    split_by: none    
+    self_contained: true
+    config:
+      toolbar:
+        position: fixed
+    bookdown::html_book:
+      code_folding: hide
+      css: toc.css
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE
+  , warning = FALSE
+  , message = FALSE
+  , fig.align = "center"
+  , cache = T
+)
+```
+
+```{r load_libraries, cache=F}
+# Core analysis packages
+library(Seurat)
+library(SeuratObject)
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+library(data.table)
+library(patchwork)
+library(tidyverse)
+library(reticulate)
+library(harmony)
+
+# Spatial transcriptomics specific
+library(spatstat)
+library(Matrix)
+library(rjson)
+library(cowplot)
+library(RColorBrewer)
+library(viridis)
+library(DT)
+library(hdf5r)
+library(reticulate)
+library(sf)
+library(raster)
+
+# Single cell integration
+library(harmony)
+library(clustree)
+library(scran)
+library(scater)
+library(cluster)
+
+# Data manipulation
+library(data.table)
+library(stringr)
+library(readr)
+library(openxlsx)
+
+# Drug discovery and pathway analysis
+library(clusterProfiler)
+library(org.Hs.eg.db)
+library(ReactomePA)
+library(GSVA)
+library(msigdbr)
+library(enrichplot)
+
+# Cell-cell communication
+library(CellChat)
+library(nichenetr)
+
+# Statistical analysis
+library(ComplexHeatmap)
+library(plotly)
+library(circlize)
+library(corrplot)
+library(survival)
+library(survminer)
+
+# Biomarker discovery
+library(randomForest)
+library(caret)
+library(pROC)
+library(ROCR)
+
+# Set theme for consistent plotting
+theme_set(
+  theme_bw() + theme(
+    plot.title = element_text(
+      size = 14
+      , face = "bold"
+    )
+    , axis.title = element_text(size = 12)
+    , axis.text = element_text(size = 10)
+    , legend.text = element_text(size = 10)
+  )
+)
+
+# Set random seed for reproducibility
+set.seed(42)
+
+# Create directory structure
+workDir <- "G:/SpatialOmics/Tx_Drug_Discovery"
+
+setwd(workDir)
+
+# Use virtual environment called "spatialenv"
+reticulate::virtualenv_create("spatialenv")
+
+# Use the new environment
+reticulate::use_virtualenv("spatialenv", required = TRUE)
+
+# Verify it's working
+reticulate::py_config()
+
+```
+
+
+```{r load-data, cache=F}
+scrna_ref <- readRDS(file.path(workDir, "/data/processed", "hcc_scrna_reference.RDS"))
+
+spatial_list <- readRDS( file.path(workDir, "data/processed", "spatial_samples_sct_dimr.RDS" ) )
+
+```
+
+## ST - Batch Correction
+```{r cache=F}
+if (!file.exists(file.path(workDir, "/data/processed", "spatial.Seurat.harmony.RDS"))) {
+  
+  # Make sure Spatial Data noise model is set to Neg Binomial
+  for (i in 1:length(spatial_list)) {
+    spatial_list[[i]] <- SCTransform(spatial_list[[i]]
+                                     , verbose = FALSE
+                                     , method = 'glmGamPoi'#  Note method used is negative binom for heterogenous samples (poisson works fine for homogenous single slice analysis)
+                                     , assay = 'Spatial'
+    )
+  }
+  
+  Integfeatures <- SelectIntegrationFeatures(spatial_list, nfeatures = 3000)
+  
+  slices_merged <- merge(spatial_list[[1]], spatial_list[2:length(spatial_list)], project = "HCC_merged", 
+                         merge.data = TRUE)
+  VariableFeatures(slices_merged) <- Integfeatures
+  
+  slices_merged$condition <- ifelse(grepl('NR', slices_merged$sample_id), 'Non-Responder', 'Responder')
+  slices_merged$orig.ident <- slices_merged$sample_id
+  
+  slices_merged <- RunPCA(slices_merged)
+  
+  # Determine optimal number of PCs
+  ElbowPlot(
+    slices_merged
+    , ndims = 50
+  ) +
+    ggtitle("ElbowPlot of PCA", subtitle = "standard deviation plateaus at PCA 20"  )
+  
+  
+  # Batch Correction
+  slices_merged <- RunHarmony(slices_merged
+                              , assay.use = "SCT"
+                              , group.by.vars = 'orig.ident'
+                              , plot_convergence = T
+  )
+  # UMAP on harmony reduced obj
+  slices_merged <- RunUMAP(slices_merged, 
+                           reduction = 'harmony', 
+                           dims = 1:20)
+  
+  
+  
+  # Find neighbors and clusters
+  slices_merged <- FindNeighbors(
+    slices_merged
+    , reduction = "harmony"
+    , dims = 1:20
+    , verbose = FALSE
+  )
+  
+  slices_merged <- FindClusters(
+    slices_merged
+    , resolution = c(0.1, 0.3, 0.5, 0.8, 1.0)
+    , verbose = FALSE
+  )
+  
+  saveRDS(slices_merged, file.path(workDir, "/data/processed", "spatial.Seurat.harmony.RDS"))
+} else  {
+  slices_merged <- readRDS(file.path(workDir, "/data/processed", "spatial.Seurat.harmony.RDS"))
+}
+
+```
+
+```{r cache=F}
+DefaultAssay(slices_merged) <- "SCT"
+
+
+# UMAP visualization by sample
+p1 <- DimPlot(
+  slices_merged
+  , reduction = "umap"
+  , group.by = "sample_id"
+, label = FALSE
+) + 
+  ggtitle("UMAP Plot: Response") +
+  theme_minimal()
+
+# UMAP visualization by response
+p2 <- DimPlot(
+  slices_merged
+  , reduction = "umap"
+  , group.by = "condition"
+  , label = FALSE
+) + 
+  ggtitle("UMAP Plot: Response") +
+  theme_minimal()
+
+
+# UMAP visualization by clusters
+p3 <- DimPlot(
+  slices_merged
+  , reduction = "umap"
+  , group.by = "gender"
+  , label = FALSE
+  , label.size = 4
+) + 
+  ggtitle("UMAP Plot: Gender") +
+  theme_minimal()
+
+# UMAP visualization by clusters
+p4 <- DimPlot(
+  slices_merged
+  , reduction = "umap"
+  , group.by = "SCT_snn_res.0.5"
+  , label = TRUE
+  , label.size = 4
+) + 
+  ggtitle("UMAP Plot: Clusters (res 0.5)") +
+  theme_minimal() +
+  theme(legend.position = "none")
+
+(p1 | p2) / (p3 | p4)
+
+
+
+
+
+```
+
+## ST Differential Expression Analysis
+
+```{r cache=F}
+slices_merged <- PrepSCTFindMarkers(
+  slices_merged
+  , assay = "SCT"
+  , verbose = TRUE
+  )
+
+Idents(slices_merged) <- slices_merged$condition
+# Find markers: Responser vs Non responder
+cluster_markers <- FindMarkers(
+                            slices_merged 
+                            , ident.1="Responder"
+                            , ident.2="Non-Responder"
+                            , assay="SCT"
+                            , slot = "data"
+                            , test.use = "wilcox"
+                            #, mean.fxn = median
+                            , min.pct = 0.10
+                            , min.diff.pct = 0.30
+                            , logfc.threshold = 0.25
+                            , min.cells.feature = 10
+                            , return.thresh = 0.1
+                            , random.seed = 42
+)
+
+# Get top markers per cluster
+top_markers <- cluster_markers %>%
+  mutate(direction=ifelse(avg_log2FC >0, "Up", "Down")) %>% 
+  rownames_to_column(var="gene") %>% 
+  group_by(direction) %>% 
+  filter(abs(avg_log2FC) > 2, p_val_adj < 0.05) %>% 
+  arrange(desc(avg_log2FC)) %>% 
+  slice_max(order_by = avg_log2FC, n = 25)
+
+top_markers %>% knitr::kable(caption="Top 50 genes")
+
+responder=cluster_markers %>%
+    filter(avg_log2FC > 2 & p_val_adj < 0.05) %>% nrow
+
+nonresponder=cluster_markers %>%
+    filter(avg_log2FC < 2 & p_val_adj < 0.05) %>% nrow
+
+data.frame(condition=c("Responder", "Non-Responder"), marker=c(responder, nonresponder) ) %>% 
+  knitr::kable(caption="Biomarkers of Response (<i>p</i>-value < 0.05, FC > 4)")
+
+
+```
+
+
+```{r heatmap}
+
+# Extract expression matrix
+expr_matrix <- as.matrix(GetAssayData(
+  slices_merged
+  , assay = "SCT"    # or "Spatial"
+  , slot = "data"    # normalized data
+))[top_markers$gene, ]
+
+# Create annotation dataframe for columns (cells)
+annotation_col <- data.frame(
+  condition = slices_merged$condition
+  , Sample = slices_merged$orig.ident
+)
+rownames(annotation_col) <- colnames(expr_matrix)
+
+# Create annotation colors
+annotation_colors <- list(
+  condition = c("Responder" = "#2E8B57", "Non-Responder" = "#CD5C5C"),
+  Sample = rainbow(length(unique(slices_merged$orig.ident)))
+)
+names(annotation_colors$Sample) <- unique(slices_merged$orig.ident)
+
+# Create pheatmap
+pheatmap(
+  as.matrix(expr_matrix)
+  , annotation_col = annotation_col
+  , annotation_colors = annotation_colors
+  , cluster_rows = T
+  , cluster_cols = F
+  , show_colnames = FALSE            # Don't show cell names
+  , show_rownames = TRUE             # Show gene names
+  , fontsize_row = 8
+  , fontsize_col = 6
+  , border_color = NA
+  , main = "Response DEGs Heatmap"
+  , breaks = seq(0, 4, length.out = 51)
+)
+
+
+```
+
+
+# scRNA-Seq Integration
+
+```{r scrna-integration, cache=F}
+
+Idents(scrna_ref) <- scrna_ref$res.3
+
+
+# Add new cell annotations
+cell_annotation <- read.csv(file.path(workDir,"cellannot.csv"))
+new.cluster.ids <- cell_annotation$annotation
+names(new.cluster.ids) <- levels(scrna_ref)
+scrna_ref <- RenameIdents(scrna_ref, new.cluster.ids)
+scrna_ref$celltype <-  Idents(scrna_ref)
+ 
+  
+# Check for cell type annotations
+print(table(scrna_ref$celltype))
+
+# Ensure both objects use SCT normalization
+if(!"SCT" %in% names(scrna_ref@assays)) {
+  cat("Running SCTransform on scRNA-seq reference...\n")
+  scrna_ref <- SCTransform(
+      scrna_ref
+      , verbose = FALSE
+      , return.only.var.genes = FALSE
+  )
+}
+
+DefaultAssay(scrna_ref) <- "SCT"
+
+# Remove NK group 4
+scrna_ref <- subset(scrna_ref, !celltype %in% 
+                      c("patient-specific macropahge1"
+                        , "patient-specific macropahge2"
+                        , "patient-specific macropahge3"
+                        , "patient-specific macropahge4"
+                        , "natural killer cell4"
+                        , "proliferative CD4 T"
+                        , "mature B cell2"
+))
+
+DefaultAssay(slices_merged) <- "SCT"
+
+cat("Finding transfer anchors between scRNA-seq and spatial data...\n")
+
+# Find anchors between scRNA-seq and spatial data
+transfer_anchors <- FindTransferAnchors(
+    reference = scrna_ref
+    , query = slices_merged
+    , normalization.method = "SCT"
+    , reference.reduction = "pca"
+    #, recompute.residuals=FALSE
+    , dims = 1:30
+    , verbose = TRUE
+)
+
+cat("Transfer anchors found:", length(transfer_anchors@anchors[,1]), "\n")
+
+# Transfer cell type labels
+cat("Transferring cell type predictions...\n")
+
+predictions <- TransferData(
+    anchorset = transfer_anchors
+    , refdata = scrna_ref$celltype
+    , dims = 1:30
+    , weight.reduction = "pcaproject"
+    , verbose = TRUE
+)
+
+# Add predictions to spatial object
+slices_merged <- AddMetaData(
+    slices_merged
+    , metadata = predictions
+)
+
+# Check prediction results
+cat("\nCell type prediction summary:\n")
+cat("Predicted cell types:", length(unique(slices_merged$predicted.id)), "\n")
+print(table(slices_merged$predicted.id))
+
+cat("\nPrediction score summary:\n")
+print(summary(slices_merged$prediction.score.max))
+
+# # Filter high-confidence predictions
+# high_conf_threshold <- 0.3
+# slices_merged$predicted.id.filtered <- ifelse(
+#     slices_merged$prediction.score.max >= high_conf_threshold
+#     , slices_merged$predicted.id
+#     , "Low_confidence"
+# )
+
+# cat("\nHigh-confidence predictions (score >=", high_conf_threshold, "):\n")
+# print(table(slices_merged$predicted.id.filtered))
+
+# Transfer gene expression imputation (optional)
+cat("\nTransferring gene expression imputation...\n")
+
+# Select highly variable genes for imputation
+variable_genes <- VariableFeatures(scrna_ref)[1:500]
+
+imputation <- TransferData(
+    anchorset = transfer_anchors
+    , refdata = GetAssayData(
+        scrna_ref
+        , assay = "SCT"
+        , slot = "data"
+    )[variable_genes, ]
+    , dims = 1:30
+    , weight.reduction = "pcaproject"
+    , verbose = FALSE
+)
+
+# Add imputed expression as new assay
+slices_merged[["imputed"]] <- imputation
+
+```
+
+
+```{r staligner-visualization, cache=F}
+
+#slices_merged$celltype <- ifelse(grepl("Tumor", slices_merged$predicted.id), "tumor", "normal")
+
+
+
+Idents(slices_merged) <- slices_merged$predicted.id
+
+# Add new cell annotations
+cell_annotation <- read.csv(file.path(workDir,"cellannot.csv"))
+new.cluster.ids <- cell_annotation$Type[match(levels(slices_merged), cell_annotation$annotation)]
+names(new.cluster.ids) <- levels(slices_merged)
+slices_merged <- RenameIdents(slices_merged, new.cluster.ids)
+slices_merged$broad_celltype <-  Idents(slices_merged)
+
+
+
+# 1. Spatial plot of cell types
+SpatialDimPlot(
+    slices_merged
+    , group.by = "broad_celltype"
+    , label = F
+    , ncol=3
+    , cols=c( "Immune Cells" = "#00bfc4"
+              , "Macrophage" = "#005aae"
+              , "Normal" = "#7cae00"
+              , "Tumor" = "#f8766d" )
+    , label.size = 1
+    , pt.size.factor = 2
+    , alpha = 1
+    #, images=c("HCC4R", "HCC7NR")
+) &
+  theme(
+    plot.title = element_text(size = 14, face = "bold")
+    , legend.position = "bottom"
+  ) 
+
+# Use Seurat's DittoSeq-style plotting if available, otherwise simple barplot
+
+library(dittoSeq)
+
+dittoBarPlot(
+  slices_merged
+  , var = "broad_celltype"
+  , group.by = "sample_id"
+  , scale = "percent"
+  , color.panel=c( "Immune Cells" = "#00bfc4"
+              , "Macrophage" = "#005aae"
+              , "Normal" = "#7cae00"
+              , "Tumor" = "#f8766d" )
+) +
+  ggtitle("Cell Type Proportions by Slice")
+
+  
+```
+
