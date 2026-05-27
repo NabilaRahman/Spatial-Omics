@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>Chapter 3 Integration / Deconvolution using Single-Cell Data | Spatial Transcriptomics Workflow</title>
+  <meta name="description" content="A public-facing Bookdown/GitBook workflow for quality control, within-slice spatial analysis, and scRNA-seq integration of mouse brain spatial transcriptomics data." />
+  <meta name="generator" content="bookdown 0.46 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="Chapter 3 Integration / Deconvolution using Single-Cell Data | Spatial Transcriptomics Workflow" />
+  <meta property="og:type" content="book" />
+  
+  <meta property="og:description" content="A public-facing Bookdown/GitBook workflow for quality control, within-slice spatial analysis, and scRNA-seq integration of mouse brain spatial transcriptomics data." />
+  
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Chapter 3 Integration / Deconvolution using Single-Cell Data | Spatial Transcriptomics Workflow" />
+  
+  <meta name="twitter:description" content="A public-facing Bookdown/GitBook workflow for quality control, within-slice spatial analysis, and scRNA-seq integration of mouse brain spatial transcriptomics data." />
+  
+
+<meta name="author" content="Nabila Rahman" />
+
+
+<meta name="date" content="2026-05-26" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="within-slice-spatial-analysis.html"/>
+
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
+
+
+<style type="text/css">
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  background-color: #f8f8f8; }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ef2929; } /* Alert */
+code span.an { color: #8f5902; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #204a87; } /* Attribute */
+code span.bn { color: #0000cf; } /* BaseN */
+code span.cf { color: #204a87; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4e9a06; } /* Char */
+code span.cn { color: #8f5902; } /* Constant */
+code span.co { color: #8f5902; font-style: italic; } /* Comment */
+code span.cv { color: #8f5902; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #8f5902; font-weight: bold; font-style: italic; } /* Documentation */
+code span.dt { color: #204a87; } /* DataType */
+code span.dv { color: #0000cf; } /* DecVal */
+code span.er { color: #a40000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #0000cf; } /* Float */
+code span.fu { color: #204a87; font-weight: bold; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #8f5902; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #204a87; font-weight: bold; } /* Keyword */
+code span.op { color: #ce5c00; font-weight: bold; } /* Operator */
+code span.ot { color: #8f5902; } /* Other */
+code span.pp { color: #8f5902; font-style: italic; } /* Preprocessor */
+code span.sc { color: #ce5c00; font-weight: bold; } /* SpecialChar */
+code span.ss { color: #4e9a06; } /* SpecialString */
+code span.st { color: #4e9a06; } /* String */
+code span.va { color: #000000; } /* Variable */
+code span.vs { color: #4e9a06; } /* VerbatimString */
+code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<style type="text/css">
+  
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+</style>
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">Spatial Transcriptomics Workflow</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>About This Book</a>
+<ul>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#what-this-project-does"><i class="fa fa-check"></i>What This Project Does</a></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#what-you-have-built-well"><i class="fa fa-check"></i>What You Have Built Well</a></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#public-readiness-notes"><i class="fa fa-check"></i>Public-Readiness Notes</a></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#interpretation-caveats"><i class="fa fa-check"></i>Interpretation Caveats</a></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#how-to-build-in-rstudio"><i class="fa fa-check"></i>How To Build In RStudio</a></li>
+</ul></li>
+<li class="chapter" data-level="1" data-path="quality-control-and-preprocessing.html"><a href="quality-control-and-preprocessing.html"><i class="fa fa-check"></i><b>1</b> Quality Control and Preprocessing</a>
+<ul>
+<li class="chapter" data-level="1.1" data-path="quality-control-and-preprocessing.html"><a href="quality-control-and-preprocessing.html#overview"><i class="fa fa-check"></i><b>1.1</b> Overview</a></li>
+<li class="chapter" data-level="1.2" data-path="quality-control-and-preprocessing.html"><a href="quality-control-and-preprocessing.html#key-concepts"><i class="fa fa-check"></i><b>1.2</b> Key Concepts</a>
+<ul>
+<li class="chapter" data-level="1.2.1" data-path="quality-control-and-preprocessing.html"><a href="quality-control-and-preprocessing.html#dataset-properties"><i class="fa fa-check"></i><b>1.2.1</b> Dataset Properties</a></li>
+<li class="chapter" data-level="1.2.2" data-path="quality-control-and-preprocessing.html"><a href="quality-control-and-preprocessing.html#load-data"><i class="fa fa-check"></i><b>1.2.2</b> Load Data</a></li>
+</ul></li>
+<li class="chapter" data-level="1.3" data-path="quality-control-and-preprocessing.html"><a href="quality-control-and-preprocessing.html#qc-metrics"><i class="fa fa-check"></i><b>1.3</b> 1. QC Metrics</a>
+<ul>
+<li class="chapter" data-level="1.3.1" data-path="quality-control-and-preprocessing.html"><a href="quality-control-and-preprocessing.html#spatial-coordinates"><i class="fa fa-check"></i><b>1.3.1</b> 1.1 Spatial Coordinates</a></li>
+<li class="chapter" data-level="1.3.2" data-path="quality-control-and-preprocessing.html"><a href="quality-control-and-preprocessing.html#seurat-object-summary"><i class="fa fa-check"></i><b>1.3.2</b> 1.2 Seurat object summary</a></li>
+<li class="chapter" data-level="1.3.3" data-path="quality-control-and-preprocessing.html"><a href="quality-control-and-preprocessing.html#basic-dataset-dimensions"><i class="fa fa-check"></i><b>1.3.3</b> 1.3 Basic Dataset Dimensions</a></li>
+<li class="chapter" data-level="1.3.4" data-path="quality-control-and-preprocessing.html"><a href="quality-control-and-preprocessing.html#sequencing-depth"><i class="fa fa-check"></i><b>1.3.4</b> 1.4 Sequencing Depth</a></li>
+<li class="chapter" data-level="1.3.5" data-path="quality-control-and-preprocessing.html"><a href="quality-control-and-preprocessing.html#umi-counts-per-spot"><i class="fa fa-check"></i><b>1.3.5</b> 1.5 UMI Counts per Spot</a></li>
+<li class="chapter" data-level="1.3.6" data-path="quality-control-and-preprocessing.html"><a href="quality-control-and-preprocessing.html#low-umi-spots"><i class="fa fa-check"></i><b>1.3.6</b> 1.5.1 Low UMI Spots</a></li>
+<li class="chapter" data-level="1.3.7" data-path="quality-control-and-preprocessing.html"><a href="quality-control-and-preprocessing.html#features-genes-per-spot"><i class="fa fa-check"></i><b>1.3.7</b> 1.6 Features (Genes) per Spot</a></li>
+<li class="chapter" data-level="1.3.8" data-path="quality-control-and-preprocessing.html"><a href="quality-control-and-preprocessing.html#low-feature-spots"><i class="fa fa-check"></i><b>1.3.8</b> 1.6.1 Low Feature Spots</a></li>
+<li class="chapter" data-level="1.3.9" data-path="quality-control-and-preprocessing.html"><a href="quality-control-and-preprocessing.html#umi-vs-features-correlation"><i class="fa fa-check"></i><b>1.3.9</b> 1.7 UMI vs Features Correlation</a></li>
+<li class="chapter" data-level="1.3.10" data-path="quality-control-and-preprocessing.html"><a href="quality-control-and-preprocessing.html#outlier-detection"><i class="fa fa-check"></i><b>1.3.10</b> 1.8 Outlier Detection</a></li>
+<li class="chapter" data-level="1.3.11" data-path="quality-control-and-preprocessing.html"><a href="quality-control-and-preprocessing.html#sparsity-analysis"><i class="fa fa-check"></i><b>1.3.11</b> 1.9 Sparsity Analysis</a></li>
+</ul></li>
+<li class="chapter" data-level="1.4" data-path="quality-control-and-preprocessing.html"><a href="quality-control-and-preprocessing.html#quality-control-visualizations"><i class="fa fa-check"></i><b>1.4</b> 2. Quality Control Visualizations</a>
+<ul>
+<li class="chapter" data-level="1.4.1" data-path="quality-control-and-preprocessing.html"><a href="quality-control-and-preprocessing.html#plot-1-distribution-of-umi-counts-histogram"><i class="fa fa-check"></i><b>1.4.1</b> 2.1 Plot 1: Distribution of UMI Counts (Histogram)</a></li>
+<li class="chapter" data-level="1.4.2" data-path="quality-control-and-preprocessing.html"><a href="quality-control-and-preprocessing.html#plot-2-distribution-of-features-histogram"><i class="fa fa-check"></i><b>1.4.2</b> 2.2 Plot 2: Distribution of Features (Histogram)</a></li>
+<li class="chapter" data-level="1.4.3" data-path="quality-control-and-preprocessing.html"><a href="quality-control-and-preprocessing.html#plot-3-umi-vs-features-correlation-scatter-plot"><i class="fa fa-check"></i><b>1.4.3</b> 2.3 Plot 3: UMI vs Features Correlation (Scatter Plot)</a></li>
+<li class="chapter" data-level="1.4.4" data-path="quality-control-and-preprocessing.html"><a href="quality-control-and-preprocessing.html#plot-4-spatial-distribution-of-umi-counts"><i class="fa fa-check"></i><b>1.4.4</b> 2.4 Plot 4: Spatial Distribution of UMI Counts</a></li>
+<li class="chapter" data-level="1.4.5" data-path="quality-control-and-preprocessing.html"><a href="quality-control-and-preprocessing.html#mitochondrial"><i class="fa fa-check"></i><b>1.4.5</b> 2.5 Mitochondrial %</a></li>
+<li class="chapter" data-level="1.4.6" data-path="quality-control-and-preprocessing.html"><a href="quality-control-and-preprocessing.html#filtering"><i class="fa fa-check"></i><b>1.4.6</b> 2.6 Filtering</a></li>
+</ul></li>
+<li class="chapter" data-level="1.5" data-path="quality-control-and-preprocessing.html"><a href="quality-control-and-preprocessing.html#preprocessing"><i class="fa fa-check"></i><b>1.5</b> 3. Preprocessing</a>
+<ul>
+<li class="chapter" data-level="1.5.1" data-path="quality-control-and-preprocessing.html"><a href="quality-control-and-preprocessing.html#dimensionality-reduction-and-clustering"><i class="fa fa-check"></i><b>1.5.1</b> 3.1 Dimensionality Reduction and Clustering</a></li>
+<li class="chapter" data-level="1.5.2" data-path="quality-control-and-preprocessing.html"><a href="quality-control-and-preprocessing.html#cluster-visualisation"><i class="fa fa-check"></i><b>1.5.2</b> 3.2 Cluster Visualisation</a></li>
+<li class="chapter" data-level="1.5.3" data-path="quality-control-and-preprocessing.html"><a href="quality-control-and-preprocessing.html#visualise-specific-clusters"><i class="fa fa-check"></i><b>1.5.3</b> 3.3 Visualise specific clusters</a></li>
+<li class="chapter" data-level="1.5.4" data-path="quality-control-and-preprocessing.html"><a href="quality-control-and-preprocessing.html#top-10-variable-genes"><i class="fa fa-check"></i><b>1.5.4</b> 3.4 Top 10 Variable Genes</a></li>
+<li class="chapter" data-level="1.5.5" data-path="quality-control-and-preprocessing.html"><a href="quality-control-and-preprocessing.html#clustering-assignments"><i class="fa fa-check"></i><b>1.5.5</b> 3.5 Clustering Assignments</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="within-slice-spatial-analysis.html"><a href="within-slice-spatial-analysis.html"><i class="fa fa-check"></i><b>2</b> Within-Slice Spatial Analysis</a>
+<ul>
+<li class="chapter" data-level="2.1" data-path="within-slice-spatial-analysis.html"><a href="within-slice-spatial-analysis.html#gene-expression-patterns"><i class="fa fa-check"></i><b>2.1</b> 1 Gene Expression Patterns</a>
+<ul>
+<li class="chapter" data-level="2.1.1" data-path="within-slice-spatial-analysis.html"><a href="within-slice-spatial-analysis.html#spatial-expression-of-top-expressed-brain-markers"><i class="fa fa-check"></i><b>2.1.1</b> 1.1 Spatial Expression of Top Expressed Brain Markers</a></li>
+<li class="chapter" data-level="2.1.2" data-path="within-slice-spatial-analysis.html"><a href="within-slice-spatial-analysis.html#select-top-genes"><i class="fa fa-check"></i><b>2.1.2</b> 1.2 Select top Genes</a></li>
+<li class="chapter" data-level="2.1.3" data-path="within-slice-spatial-analysis.html"><a href="within-slice-spatial-analysis.html#visualise-top-expressed-genes"><i class="fa fa-check"></i><b>2.1.3</b> 1.3 Visualise Top Expressed Genes</a></li>
+</ul></li>
+<li class="chapter" data-level="2.2" data-path="within-slice-spatial-analysis.html"><a href="within-slice-spatial-analysis.html#autocorrelation-analysis"><i class="fa fa-check"></i><b>2.2</b> 2. Autocorrelation Analysis</a>
+<ul>
+<li class="chapter" data-level="2.2.1" data-path="within-slice-spatial-analysis.html"><a href="within-slice-spatial-analysis.html#location-based-spatial-auto-correlation"><i class="fa fa-check"></i><b>2.2.1</b> 2.1 Location-Based Spatial Auto Correlation</a></li>
+<li class="chapter" data-level="2.2.2" data-path="within-slice-spatial-analysis.html"><a href="within-slice-spatial-analysis.html#differential-expression-between-anatomical-regions"><i class="fa fa-check"></i><b>2.2.2</b> 2.2 Differential Expression Between Anatomical Regions</a></li>
+<li class="chapter" data-level="2.2.3" data-path="within-slice-spatial-analysis.html"><a href="within-slice-spatial-analysis.html#hybrid-approach"><i class="fa fa-check"></i><b>2.2.3</b> 2.3 Hybrid Approach</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="integration-deconvolution-using-single-cell-data.html"><a href="integration-deconvolution-using-single-cell-data.html"><i class="fa fa-check"></i><b>3</b> Integration / Deconvolution using Single-Cell Data</a>
+<ul>
+<li class="chapter" data-level="3.0.1" data-path="integration-deconvolution-using-single-cell-data.html"><a href="integration-deconvolution-using-single-cell-data.html#preparing-data"><i class="fa fa-check"></i><b>3.0.1</b> 1.1 Preparing Data</a></li>
+<li class="chapter" data-level="3.0.2" data-path="integration-deconvolution-using-single-cell-data.html"><a href="integration-deconvolution-using-single-cell-data.html#extract-cortical-region"><i class="fa fa-check"></i><b>3.0.2</b> 1.2 Extract Cortical Region</a></li>
+<li class="chapter" data-level="3.1" data-path="integration-deconvolution-using-single-cell-data.html"><a href="integration-deconvolution-using-single-cell-data.html#anchor-based-scrna-seq-integration"><i class="fa fa-check"></i><b>3.1</b> 2 Anchor Based scRNA-Seq integration</a>
+<ul>
+<li class="chapter" data-level="3.1.1" data-path="integration-deconvolution-using-single-cell-data.html"><a href="integration-deconvolution-using-single-cell-data.html#find-and-transfer-labels"><i class="fa fa-check"></i><b>3.1.1</b> 2.2 Find and Transfer labels</a></li>
+<li class="chapter" data-level="3.1.2" data-path="integration-deconvolution-using-single-cell-data.html"><a href="integration-deconvolution-using-single-cell-data.html#visualise-specific-cell-types"><i class="fa fa-check"></i><b>3.1.2</b> 2.3 Visualise specific cell types</a></li>
+<li class="chapter" data-level="3.1.3" data-path="integration-deconvolution-using-single-cell-data.html"><a href="integration-deconvolution-using-single-cell-data.html#find-spatially-variable-cell-types"><i class="fa fa-check"></i><b>3.1.3</b> 2.4 Find Spatially Variable Cell types</a></li>
+</ul></li>
+<li class="chapter" data-level="3.2" data-path="integration-deconvolution-using-single-cell-data.html"><a href="integration-deconvolution-using-single-cell-data.html#spatial-deconvolution-using-rctd-robust-cell-type-decomposition"><i class="fa fa-check"></i><b>3.2</b> 3 Spatial deconvolution using RCTD (Robust Cell Type Decomposition)</a>
+<ul>
+<li class="chapter" data-level="3.2.1" data-path="integration-deconvolution-using-single-cell-data.html"><a href="integration-deconvolution-using-single-cell-data.html#run-rctd"><i class="fa fa-check"></i><b>3.2.1</b> 3.1 Run RCTD</a></li>
+<li class="chapter" data-level="3.2.2" data-path="integration-deconvolution-using-single-cell-data.html"><a href="integration-deconvolution-using-single-cell-data.html#plot-the-rctd-annotations."><i class="fa fa-check"></i><b>3.2.2</b> 3.2 Plot the RCTD annotations.</a></li>
+<li class="chapter" data-level="3.2.3" data-path="integration-deconvolution-using-single-cell-data.html"><a href="integration-deconvolution-using-single-cell-data.html#session-info"><i class="fa fa-check"></i><b>3.2.3</b> Session Info</a></li>
+</ul></li>
+</ul></li>
+<li class="divider"></li>
+<li><a href="https://bookdown.org" target="blank">Published with bookdown</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Spatial Transcriptomics Workflow</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="integration-deconvolution-using-single-cell-data" class="section level1 hasAnchor" number="3">
+<h1><span class="header-section-number">Chapter 3</span> Integration / Deconvolution using Single-Cell Data<a href="integration-deconvolution-using-single-cell-data.html#integration-deconvolution-using-single-cell-data" class="anchor-section" aria-label="Anchor link to header"></a></h1>
+<p>Visium assays are around ~50um in size so spots can be classed as
+“bulk” genes.</p>
+<p><strong>Anchor-based Integration methods (Seurat v3 / v4)</strong> is the
+probabilistic transfer of cell type annotations from scRNA-seq to
+spatial data (different from deconvolution).</p>
+<p><em>Matches expression profiles/ noise distribution</em> between single-cell
+reference and spatial spots</p>
+<ul>
+<li>Finds anchors/correspondences between datasets</li>
+<li>Transfers labels from single cells to spatial spots</li>
+</ul>
+<p><strong>Key Assumption:</strong> - Each spatial spot is dominated by one cell type -
+Focus on identifying the primary cell type per spot</p>
+<p><br/> A. Key Differences Comparison</p>
+<details>
+<summary>
+Click to show table
+</summary>
+<table>
+<colgroup>
+<col width="25%" />
+<col width="34%" />
+<col width="40%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Aspect</th>
+<th>Integration</th>
+<th>Deconvolution</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Goal</td>
+<td>Identify dominant cell type</td>
+<td>Quantify all cell type proportions</td>
+</tr>
+<tr class="even">
+<td>Output</td>
+<td>Discrete labels</td>
+<td>Continuous proportions</td>
+</tr>
+<tr class="odd">
+<td>Spot Assumption</td>
+<td>One dominant cell type</td>
+<td>Multiple mixed cell types</td>
+</tr>
+<tr class="even">
+<td>Computational Focus</td>
+<td>Pattern matching</td>
+<td>Mathematical decomposition</td>
+</tr>
+<tr class="odd">
+<td>Biological Reality</td>
+<td>Simplified view</td>
+<td>More realistic for 55μm spots</td>
+</tr>
+<tr class="even">
+<td>Speed</td>
+<td>Fast</td>
+<td>Slower</td>
+</tr>
+<tr class="odd">
+<td>Complexity</td>
+<td>Simple</td>
+<td>Complex</td>
+</tr>
+<tr class="even">
+<td>Quantitative Info</td>
+<td>Low</td>
+<td>High</td>
+</tr>
+<tr class="odd">
+<td>Mixed Cell Handling</td>
+<td>Poor</td>
+<td>Excellent</td>
+</tr>
+<tr class="even">
+<td>Interpretation</td>
+<td>Easy</td>
+<td>Moderate</td>
+</tr>
+<tr class="odd">
+<td>Best for Visium</td>
+<td>Good for exploration</td>
+<td>Better for analysis</td>
+</tr>
+<tr class="even">
+<td>Reference Requirements</td>
+<td>Standard</td>
+<td>High quality needed</td>
+</tr>
+</tbody>
+</table>
+</details>
+<p><br/> B. Cheatsheet: Spatial Platform-Specific Method Performance</p>
+<details>
+<summary>
+Click to show table
+</summary>
+<p><strong>Comprehensive Method Benchmarking: Deconvolution vs Integration vs Hybrid</strong></p>
+<table style="width:100%;">
+<colgroup>
+<col width="16%" />
+<col width="16%" />
+<col width="16%" />
+<col width="16%" />
+<col width="16%" />
+<col width="16%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Platform</th>
+<th>Resolution</th>
+<th>Best Deconvolution</th>
+<th>Best Integration</th>
+<th>Best Hybrid</th>
+<th>Recommended Approach</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>10x Visium</strong></td>
+<td>55μm</td>
+<td><strong>CARD, Cell2location, RCTD</strong></td>
+<td>Seurat v3/v4 anchors</td>
+<td><strong>Tangram</strong></td>
+<td><strong>Deconvolution preferred</strong></td>
+</tr>
+<tr class="even">
+<td><strong>Slide-seqV2</strong></td>
+<td>10μm</td>
+<td><strong>Cell2location, RCTD</strong></td>
+<td>Seurat anchors, Harmony</td>
+<td><strong>Tangram, CytoSPACE</strong></td>
+<td><strong>Deconvolution preferred</strong></td>
+</tr>
+<tr class="odd">
+<td><strong>MERFISH</strong></td>
+<td>Single-cell</td>
+<td><strong>Cell2location, SpatialDecon</strong></td>
+<td>Seurat anchors</td>
+<td><strong>Tangram</strong></td>
+<td><strong>Hybrid or Integration</strong></td>
+</tr>
+<tr class="even">
+<td><strong>seqFISH+</strong></td>
+<td>Single-cell</td>
+<td><strong>CARD, DestVI</strong></td>
+<td>Seurat anchors</td>
+<td><strong>Tangram</strong></td>
+<td><strong>Hybrid or Integration</strong></td>
+</tr>
+<tr class="odd">
+<td><strong>Stereo-seq</strong></td>
+<td>500nm-1μm</td>
+<td><strong>SpatialDecon, CARD</strong></td>
+<td>Seurat anchors</td>
+<td><strong>Tangram</strong></td>
+<td><strong>Deconvolution preferred</strong></td>
+</tr>
+<tr class="even">
+<td><strong>Xenium</strong></td>
+<td>Subcellular</td>
+<td><strong>Cell2location</strong></td>
+<td>Seurat v4 anchors</td>
+<td><strong>Tangram, CytoSPACE</strong></td>
+<td><strong>Hybrid recommended</strong></td>
+</tr>
+<tr class="odd">
+<td><strong>CosMx</strong></td>
+<td>Single-cell</td>
+<td><strong>Cell2location</strong></td>
+<td>Seurat anchors</td>
+<td><strong>Tangram</strong></td>
+<td><strong>Hybrid recommended</strong></td>
+</tr>
+</tbody>
+</table>
+</details>
+<p><br/> Cheatsheet: Technology-Specific Deconvolution Performance Matrix</p>
+<details>
+<summary>
+Click to show table
+</summary>
+<table style="width:100%;">
+<colgroup>
+<col width="16%" />
+<col width="16%" />
+<col width="16%" />
+<col width="16%" />
+<col width="16%" />
+<col width="16%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Method</th>
+<th>Visium</th>
+<th>Slide-seqV2</th>
+<th>MERFISH</th>
+<th>seqFISH+</th>
+<th>Stereo-seq</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>CARD</strong></td>
+<td>⭐⭐⭐⭐⭐</td>
+<td>⭐⭐⭐⭐</td>
+<td>⭐⭐⭐</td>
+<td>⭐⭐⭐⭐⭐</td>
+<td>⭐⭐⭐⭐</td>
+</tr>
+<tr class="even">
+<td><strong>Cell2location</strong></td>
+<td>⭐⭐⭐⭐⭐</td>
+<td>⭐⭐⭐⭐⭐</td>
+<td>⭐⭐⭐⭐⭐</td>
+<td>⭐⭐⭐⭐</td>
+<td>⭐⭐⭐⭐</td>
+</tr>
+<tr class="odd">
+<td><strong>RCTD</strong></td>
+<td>⭐⭐⭐⭐⭐</td>
+<td>⭐⭐⭐⭐⭐</td>
+<td>⭐⭐⭐⭐</td>
+<td>⭐⭐⭐</td>
+<td>⭐⭐⭐⭐</td>
+</tr>
+<tr class="even">
+<td><strong>Tangram</strong></td>
+<td>⭐⭐⭐⭐</td>
+<td>⭐⭐⭐⭐</td>
+<td>⭐⭐⭐⭐⭐</td>
+<td>⭐⭐⭐</td>
+<td>⭐⭐⭐⭐⭐</td>
+</tr>
+<tr class="odd">
+<td><strong>SpatialDWLS</strong></td>
+<td>⭐⭐⭐⭐</td>
+<td>⭐⭐⭐</td>
+<td>⭐⭐</td>
+<td>⭐⭐⭐⭐</td>
+<td>⭐⭐⭐</td>
+</tr>
+<tr class="even">
+<td><strong>SpatialDecon</strong></td>
+<td>⭐⭐⭐⭐</td>
+<td>⭐⭐⭐⭐</td>
+<td>⭐⭐⭐⭐⭐</td>
+<td>⭐⭐⭐</td>
+<td>⭐⭐⭐⭐⭐</td>
+</tr>
+<tr class="odd">
+<td><strong>STdeconvolve</strong></td>
+<td>⭐⭐⭐</td>
+<td>⭐⭐⭐⭐⭐</td>
+<td>⭐⭐⭐</td>
+<td>⭐⭐</td>
+<td>⭐⭐⭐</td>
+</tr>
+<tr class="even">
+<td><strong>DestVI</strong></td>
+<td>⭐⭐⭐⭐</td>
+<td>⭐⭐</td>
+<td>⭐⭐⭐</td>
+<td>⭐⭐⭐⭐</td>
+<td>⭐⭐⭐</td>
+</tr>
+</tbody>
+</table>
+</details>
+<div class="sourceCode" id="cb80"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb80-1"><a href="integration-deconvolution-using-single-cell-data.html#cb80-1" tabindex="-1"></a><span class="co"># Install packages if not already installed</span></span>
+<span id="cb80-2"><a href="integration-deconvolution-using-single-cell-data.html#cb80-2" tabindex="-1"></a><span class="co"># install.packages(c(&quot;Seurat&quot;, &quot;Matrix&quot;, &quot;ggplot2&quot;, &quot;viridis&quot;, &quot;patchwork&quot;, &quot;dplyr&quot;))</span></span>
+<span id="cb80-3"><a href="integration-deconvolution-using-single-cell-data.html#cb80-3" tabindex="-1"></a><span class="co"># install.packages(c(&quot;sp&quot;, &quot;spdep&quot;, &quot;spatstat&quot;, &quot;pheatmap&quot;, &quot;sctransform&quot;))</span></span>
+<span id="cb80-4"><a href="integration-deconvolution-using-single-cell-data.html#cb80-4" tabindex="-1"></a><span class="co"># SeuratData::InstallData(&quot;stxBrain.SeuratData&quot;)</span></span>
+<span id="cb80-5"><a href="integration-deconvolution-using-single-cell-data.html#cb80-5" tabindex="-1"></a></span>
+<span id="cb80-6"><a href="integration-deconvolution-using-single-cell-data.html#cb80-6" tabindex="-1"></a><span class="co"># devtools::install_github(&#39;satijalab/seurat-data&#39;)</span></span>
+<span id="cb80-7"><a href="integration-deconvolution-using-single-cell-data.html#cb80-7" tabindex="-1"></a><span class="co"># devtools::install_github(&quot;dmcable/spacexr&quot;, build_vignettes = FALSE)</span></span>
+<span id="cb80-8"><a href="integration-deconvolution-using-single-cell-data.html#cb80-8" tabindex="-1"></a></span>
+<span id="cb80-9"><a href="integration-deconvolution-using-single-cell-data.html#cb80-9" tabindex="-1"></a><span class="co"># Load essential libraries</span></span>
+<span id="cb80-10"><a href="integration-deconvolution-using-single-cell-data.html#cb80-10" tabindex="-1"></a><span class="fu">library</span>(Seurat)        <span class="co"># v5.3.1 - main spatial analysis package</span></span>
+<span id="cb80-11"><a href="integration-deconvolution-using-single-cell-data.html#cb80-11" tabindex="-1"></a><span class="fu">library</span>(ggplot2)       <span class="co"># for visualization</span></span>
+<span id="cb80-12"><a href="integration-deconvolution-using-single-cell-data.html#cb80-12" tabindex="-1"></a><span class="fu">library</span>(dplyr)         <span class="co"># for data manipulation</span></span>
+<span id="cb80-13"><a href="integration-deconvolution-using-single-cell-data.html#cb80-13" tabindex="-1"></a><span class="fu">library</span>(Matrix)        <span class="co"># for sparse matrices</span></span>
+<span id="cb80-14"><a href="integration-deconvolution-using-single-cell-data.html#cb80-14" tabindex="-1"></a><span class="fu">library</span>(viridis)       <span class="co"># for color palettes</span></span>
+<span id="cb80-15"><a href="integration-deconvolution-using-single-cell-data.html#cb80-15" tabindex="-1"></a><span class="fu">library</span>(patchwork)     <span class="co"># for combining plots</span></span>
+<span id="cb80-16"><a href="integration-deconvolution-using-single-cell-data.html#cb80-16" tabindex="-1"></a><span class="fu">library</span>(spdep)         <span class="co"># for spatial statistics</span></span>
+<span id="cb80-17"><a href="integration-deconvolution-using-single-cell-data.html#cb80-17" tabindex="-1"></a><span class="fu">library</span>(pheatmap)      <span class="co"># for heatmaps</span></span>
+<span id="cb80-18"><a href="integration-deconvolution-using-single-cell-data.html#cb80-18" tabindex="-1"></a><span class="fu">library</span>(sctransform)   <span class="co"># for SCTransform normalization</span></span>
+<span id="cb80-19"><a href="integration-deconvolution-using-single-cell-data.html#cb80-19" tabindex="-1"></a><span class="fu">library</span>(future)        <span class="co"># for parallel processing</span></span>
+<span id="cb80-20"><a href="integration-deconvolution-using-single-cell-data.html#cb80-20" tabindex="-1"></a><span class="fu">library</span>(knitr)         <span class="co"># for visualising tables</span></span>
+<span id="cb80-21"><a href="integration-deconvolution-using-single-cell-data.html#cb80-21" tabindex="-1"></a><span class="fu">library</span>(spacexr)       <span class="co"># for Robust Cell Type Decomposition</span></span>
+<span id="cb80-22"><a href="integration-deconvolution-using-single-cell-data.html#cb80-22" tabindex="-1"></a><span class="fu">library</span>(ggsci)         <span class="co"># distinct colors</span></span>
+<span id="cb80-23"><a href="integration-deconvolution-using-single-cell-data.html#cb80-23" tabindex="-1"></a></span>
+<span id="cb80-24"><a href="integration-deconvolution-using-single-cell-data.html#cb80-24" tabindex="-1"></a><span class="co"># Increase the memory limit for parallel processing</span></span>
+<span id="cb80-25"><a href="integration-deconvolution-using-single-cell-data.html#cb80-25" tabindex="-1"></a><span class="fu">options</span>(<span class="at">future.globals.maxSize =</span> <span class="dv">8000</span> <span class="sc">*</span> <span class="dv">1024</span><span class="sc">^</span><span class="dv">2</span>)  <span class="co"># Set to 4GB</span></span>
+<span id="cb80-26"><a href="integration-deconvolution-using-single-cell-data.html#cb80-26" tabindex="-1"></a></span>
+<span id="cb80-27"><a href="integration-deconvolution-using-single-cell-data.html#cb80-27" tabindex="-1"></a><span class="co"># Set seed for reproducibility</span></span>
+<span id="cb80-28"><a href="integration-deconvolution-using-single-cell-data.html#cb80-28" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb81"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb81-1"><a href="integration-deconvolution-using-single-cell-data.html#cb81-1" tabindex="-1"></a>seurat_obj <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;cache/stxBrain_anterior2_processed_1.RDS&quot;</span>)</span>
+<span id="cb81-2"><a href="integration-deconvolution-using-single-cell-data.html#cb81-2" tabindex="-1"></a>seurat_obj <span class="ot">&lt;-</span> <span class="fu">UpdateSeuratObject</span>(seurat_obj)</span></code></pre></div>
+<div id="preparing-data" class="section level3 hasAnchor" number="3.0.1">
+<h3><span class="header-section-number">3.0.1</span> 1.1 Preparing Data<a href="integration-deconvolution-using-single-cell-data.html#preparing-data" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>We want to use a cortical scRNA-seq dataset.</p>
+<p><strong>Best practise</strong> subset the spatial data to match the scRNA-Seq data
+(in this case the cortex)</p>
+</div>
+<div id="extract-cortical-region" class="section level3 hasAnchor" number="3.0.2">
+<h3><span class="header-section-number">3.0.2</span> 1.2 Extract Cortical Region<a href="integration-deconvolution-using-single-cell-data.html#extract-cortical-region" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<div class="sourceCode" id="cb82"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb82-1"><a href="integration-deconvolution-using-single-cell-data.html#cb82-1" tabindex="-1"></a><span class="co"># Subset to clusters of interest</span></span>
+<span id="cb82-2"><a href="integration-deconvolution-using-single-cell-data.html#cb82-2" tabindex="-1"></a>cortex <span class="ot">&lt;-</span> <span class="fu">subset</span>(seurat_obj, seurat_clusters <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>))</span>
+<span id="cb82-3"><a href="integration-deconvolution-using-single-cell-data.html#cb82-3" tabindex="-1"></a></span>
+<span id="cb82-4"><a href="integration-deconvolution-using-single-cell-data.html#cb82-4" tabindex="-1"></a><span class="co"># Extract and attach spatial coordinates from anterior1 image</span></span>
+<span id="cb82-5"><a href="integration-deconvolution-using-single-cell-data.html#cb82-5" tabindex="-1"></a>centroids <span class="ot">&lt;-</span> cortex[[<span class="st">&quot;anterior2&quot;</span>]]<span class="sc">@</span>boundaries<span class="sc">$</span>centroids</span>
+<span id="cb82-6"><a href="integration-deconvolution-using-single-cell-data.html#cb82-6" tabindex="-1"></a>coords <span class="ot">&lt;-</span> <span class="fu">setNames</span>(<span class="fu">as.data.frame</span>(centroids<span class="sc">@</span>coords), <span class="fu">c</span>(<span class="st">&quot;x&quot;</span>, <span class="st">&quot;y&quot;</span>))</span>
+<span id="cb82-7"><a href="integration-deconvolution-using-single-cell-data.html#cb82-7" tabindex="-1"></a><span class="fu">rownames</span>(coords) <span class="ot">&lt;-</span> centroids<span class="sc">@</span>cells</span>
+<span id="cb82-8"><a href="integration-deconvolution-using-single-cell-data.html#cb82-8" tabindex="-1"></a></span>
+<span id="cb82-9"><a href="integration-deconvolution-using-single-cell-data.html#cb82-9" tabindex="-1"></a>cortex<span class="sc">$</span>x <span class="ot">&lt;-</span> coords[<span class="fu">colnames</span>(cortex), <span class="st">&quot;x&quot;</span>]</span>
+<span id="cb82-10"><a href="integration-deconvolution-using-single-cell-data.html#cb82-10" tabindex="-1"></a>cortex<span class="sc">$</span>y <span class="ot">&lt;-</span> coords[<span class="fu">colnames</span>(cortex), <span class="st">&quot;y&quot;</span>]</span>
+<span id="cb82-11"><a href="integration-deconvolution-using-single-cell-data.html#cb82-11" tabindex="-1"></a></span>
+<span id="cb82-12"><a href="integration-deconvolution-using-single-cell-data.html#cb82-12" tabindex="-1"></a><span class="co"># Perform spatial subsetting using image position Subset to upper right quadrant</span></span>
+<span id="cb82-13"><a href="integration-deconvolution-using-single-cell-data.html#cb82-13" tabindex="-1"></a>cortex <span class="ot">&lt;-</span> <span class="fu">subset</span>(cortex, y <span class="sc">&lt;=</span> <span class="fu">min</span>(cortex<span class="sc">$</span>y ) <span class="sc">|</span> x <span class="sc">&gt;=</span> <span class="fu">max</span>(cortex<span class="sc">$</span>x ), <span class="at">invert =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb82-14"><a href="integration-deconvolution-using-single-cell-data.html#cb82-14" tabindex="-1"></a></span>
+<span id="cb82-15"><a href="integration-deconvolution-using-single-cell-data.html#cb82-15" tabindex="-1"></a><span class="co"># Visualize the subsetted data on full image vs cropped image</span></span>
+<span id="cb82-16"><a href="integration-deconvolution-using-single-cell-data.html#cb82-16" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">SpatialDimPlot</span>(cortex, <span class="at">crop =</span> <span class="cn">TRUE</span>, <span class="at">label =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb82-17"><a href="integration-deconvolution-using-single-cell-data.html#cb82-17" tabindex="-1"></a>p2 <span class="ot">&lt;-</span> <span class="fu">SpatialDimPlot</span>(cortex, <span class="at">crop =</span> <span class="cn">FALSE</span>, <span class="at">label =</span> <span class="cn">TRUE</span>, <span class="at">pt.size.factor =</span> <span class="dv">1</span>, <span class="at">label.size =</span> <span class="dv">3</span>)</span>
+<span id="cb82-18"><a href="integration-deconvolution-using-single-cell-data.html#cb82-18" tabindex="-1"></a>p1 <span class="sc">+</span> p2</span></code></pre></div>
+<p><img src="spatial-transcriptomics-workflow_files/figure-html/extract-cort-region-1.png" alt="" width="960" /></p>
+<div class="sourceCode" id="cb83"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb83-1"><a href="integration-deconvolution-using-single-cell-data.html#cb83-1" tabindex="-1"></a><span class="co"># Best Practice:  Renormalize spatial data</span></span>
+<span id="cb83-2"><a href="integration-deconvolution-using-single-cell-data.html#cb83-2" tabindex="-1"></a>cortex <span class="ot">&lt;-</span> <span class="fu">SCTransform</span>(cortex, <span class="at">assay =</span> <span class="st">&quot;Spatial&quot;</span>, <span class="at">verbose =</span> <span class="cn">FALSE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb83-3"><a href="integration-deconvolution-using-single-cell-data.html#cb83-3" tabindex="-1"></a>  <span class="fu">RunPCA</span>(<span class="at">verbose =</span> <span class="cn">FALSE</span>)</span></code></pre></div>
+<hr />
+</div>
+<div id="anchor-based-scrna-seq-integration" class="section level2 hasAnchor" number="3.1">
+<h2><span class="header-section-number">3.1</span> 2 Anchor Based scRNA-Seq integration<a href="integration-deconvolution-using-single-cell-data.html#anchor-based-scrna-seq-integration" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p><em>Reference scRNA-seq dataset:</em> taxonomy from the Allen Institute</p>
+<table>
+<tbody>
+<tr class="odd">
+<td><strong>Source Data</strong></td>
+<td>Allen Brain Map</td>
+</tr>
+<tr class="even">
+<td><strong>Species</strong></td>
+<td>Adult mouse</td>
+</tr>
+<tr class="odd">
+<td><strong>Tissue</strong></td>
+<td>Cortex</td>
+</tr>
+<tr class="even">
+<td><strong>Platform</strong></td>
+<td>SMART-Seq2</td>
+</tr>
+<tr class="odd">
+<td><strong>Integration Method</strong></td>
+<td>‘anchor’-based (Seurat v3)</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb84"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb84-1"><a href="integration-deconvolution-using-single-cell-data.html#cb84-1" tabindex="-1"></a><span class="co">#~~~~~~~~~~~~~~</span></span>
+<span id="cb84-2"><a href="integration-deconvolution-using-single-cell-data.html#cb84-2" tabindex="-1"></a><span class="co"># 2.1 Get Single Cell Data for Cortex ~~~~~~~~~~~~</span></span>
+<span id="cb84-3"><a href="integration-deconvolution-using-single-cell-data.html#cb84-3" tabindex="-1"></a><span class="co">#~~~~~~~~~~~~~~</span></span>
+<span id="cb84-4"><a href="integration-deconvolution-using-single-cell-data.html#cb84-4" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">file.exists</span>(<span class="st">&quot;cache/allen-brain-processed.RDS&quot;</span>)) {</span>
+<span id="cb84-5"><a href="integration-deconvolution-using-single-cell-data.html#cb84-5" tabindex="-1"></a>  </span>
+<span id="cb84-6"><a href="integration-deconvolution-using-single-cell-data.html#cb84-6" tabindex="-1"></a>  <span class="co"># Download File</span></span>
+<span id="cb84-7"><a href="integration-deconvolution-using-single-cell-data.html#cb84-7" tabindex="-1"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">file.exists</span>(<span class="st">&quot;allen_cortex.rds&quot;</span>)) {</span>
+<span id="cb84-8"><a href="integration-deconvolution-using-single-cell-data.html#cb84-8" tabindex="-1"></a>    <span class="fu">download.file</span>(<span class="at">url =</span> <span class="st">&quot;https://www.dropbox.com/s/cuowvm4vrf65pvq/allen_cortex.rds?dl=1&quot;</span> </span>
+<span id="cb84-9"><a href="integration-deconvolution-using-single-cell-data.html#cb84-9" tabindex="-1"></a>                  , <span class="at">destfile =</span> <span class="st">&quot;allen_cortex.rds&quot;</span>, </span>
+<span id="cb84-10"><a href="integration-deconvolution-using-single-cell-data.html#cb84-10" tabindex="-1"></a>                  , <span class="at">method =</span> <span class="st">&quot;auto&quot;</span></span>
+<span id="cb84-11"><a href="integration-deconvolution-using-single-cell-data.html#cb84-11" tabindex="-1"></a>                  , <span class="at">mode =</span> <span class="st">&quot;wb&quot;</span>) </span>
+<span id="cb84-12"><a href="integration-deconvolution-using-single-cell-data.html#cb84-12" tabindex="-1"></a>  }</span>
+<span id="cb84-13"><a href="integration-deconvolution-using-single-cell-data.html#cb84-13" tabindex="-1"></a>  </span>
+<span id="cb84-14"><a href="integration-deconvolution-using-single-cell-data.html#cb84-14" tabindex="-1"></a>  allen_reference <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;allen_cortex.rds&quot;</span>)</span>
+<span id="cb84-15"><a href="integration-deconvolution-using-single-cell-data.html#cb84-15" tabindex="-1"></a>  </span>
+<span id="cb84-16"><a href="integration-deconvolution-using-single-cell-data.html#cb84-16" tabindex="-1"></a>  allen_reference <span class="ot">&lt;-</span> <span class="fu">UpdateSeuratObject</span>(allen_reference)</span>
+<span id="cb84-17"><a href="integration-deconvolution-using-single-cell-data.html#cb84-17" tabindex="-1"></a>  <span class="fu">Idents</span>(allen_reference) <span class="ot">&lt;-</span> <span class="st">&quot;subclass&quot;</span></span>
+<span id="cb84-18"><a href="integration-deconvolution-using-single-cell-data.html#cb84-18" tabindex="-1"></a>  </span>
+<span id="cb84-19"><a href="integration-deconvolution-using-single-cell-data.html#cb84-19" tabindex="-1"></a>  <span class="co"># Normalize Data</span></span>
+<span id="cb84-20"><a href="integration-deconvolution-using-single-cell-data.html#cb84-20" tabindex="-1"></a>  allen_reference <span class="ot">&lt;-</span> <span class="fu">SCTransform</span> (</span>
+<span id="cb84-21"><a href="integration-deconvolution-using-single-cell-data.html#cb84-21" tabindex="-1"></a>    allen_reference</span>
+<span id="cb84-22"><a href="integration-deconvolution-using-single-cell-data.html#cb84-22" tabindex="-1"></a>    , <span class="at">ncells =</span> <span class="dv">3000</span> <span class="co"># learns noise models on 3000 cells, whole dataset normalised with no loss in performance</span></span>
+<span id="cb84-23"><a href="integration-deconvolution-using-single-cell-data.html#cb84-23" tabindex="-1"></a>    , <span class="at">verbose =</span> <span class="cn">FALSE</span> ) <span class="sc">%&gt;%</span> </span>
+<span id="cb84-24"><a href="integration-deconvolution-using-single-cell-data.html#cb84-24" tabindex="-1"></a>    <span class="co"># PCA</span></span>
+<span id="cb84-25"><a href="integration-deconvolution-using-single-cell-data.html#cb84-25" tabindex="-1"></a>    <span class="fu">RunPCA</span>(<span class="at">verbose =</span> <span class="cn">FALSE</span>)  <span class="sc">%&gt;%</span> </span>
+<span id="cb84-26"><a href="integration-deconvolution-using-single-cell-data.html#cb84-26" tabindex="-1"></a>    <span class="co"># UMAP</span></span>
+<span id="cb84-27"><a href="integration-deconvolution-using-single-cell-data.html#cb84-27" tabindex="-1"></a>    <span class="fu">RunUMAP</span>( <span class="at">dims =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">30</span> )</span>
+<span id="cb84-28"><a href="integration-deconvolution-using-single-cell-data.html#cb84-28" tabindex="-1"></a>  </span>
+<span id="cb84-29"><a href="integration-deconvolution-using-single-cell-data.html#cb84-29" tabindex="-1"></a>  <span class="fu">saveRDS</span>(allen_reference, <span class="st">&quot;cache/allen-brain-processed.RDS&quot;</span>)</span>
+<span id="cb84-30"><a href="integration-deconvolution-using-single-cell-data.html#cb84-30" tabindex="-1"></a>  </span>
+<span id="cb84-31"><a href="integration-deconvolution-using-single-cell-data.html#cb84-31" tabindex="-1"></a>} <span class="cf">else</span> {</span>
+<span id="cb84-32"><a href="integration-deconvolution-using-single-cell-data.html#cb84-32" tabindex="-1"></a>  allen_reference <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;cache/allen-brain-processed.RDS&quot;</span>)</span>
+<span id="cb84-33"><a href="integration-deconvolution-using-single-cell-data.html#cb84-33" tabindex="-1"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb85"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb85-1"><a href="integration-deconvolution-using-single-cell-data.html#cb85-1" tabindex="-1"></a><span class="co"># the annotation is stored in the &#39;subclass&#39; column of object metadata</span></span>
+<span id="cb85-2"><a href="integration-deconvolution-using-single-cell-data.html#cb85-2" tabindex="-1"></a><span class="fu">DimPlot</span>(allen_reference, <span class="at">group.by =</span> <span class="st">&quot;subclass&quot;</span>, <span class="at">label =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<div class="figure"><span style="display:block;" id="fig:anchorB-dimplot"></span>
+<img src="spatial-transcriptomics-workflow_files/figure-html/anchorB-dimplot-1.png" alt="UMAP Plot of reference scRNA-Seq data" width="960" />
+<p class="caption">
+Figure 3.1: UMAP Plot of reference scRNA-Seq data
+</p>
+</div>
+<hr />
+<div id="find-and-transfer-labels" class="section level3 hasAnchor" number="3.1.1">
+<h3><span class="header-section-number">3.1.1</span> 2.2 Find and Transfer labels<a href="integration-deconvolution-using-single-cell-data.html#find-and-transfer-labels" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p><strong>How does the FindTransferAnchors function work?</strong></p>
+<details>
+<summary>
+Click to show table
+</summary>
+<ul>
+<li><p>Step 1: Feature Selection &amp; Dimensional</p></li>
+<li><p>Find intersect of most variable genes in scRNA-Seq and Spatial data</p></li>
+<li><p>Dimension reduction (PCA / CCA)</p></li>
+<li><p>Step 2: Mutual Nearest Neighbor (MNN).
+For each spot in Spatial data dataset:</p></li>
+<li><p>Find k nearest neighbors in scRNA-Seq</p></li>
+<li><p>For each neighbor, check if Spatial spot is also its neighbor</p></li>
+<li><p>If mutual → potential “anchor pair”</p></li>
+<li><p>Step 3: Anchor Filtering &amp; Scoring</p></li>
+<li><p>Distance threshold (closer = better)</p></li>
+<li><p>Neighborhood overlap score</p></li>
+<li><p>Local neighborhood structure consistency</p></li>
+</ul>
+</details>
+<div class="sourceCode" id="cb86"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb86-1"><a href="integration-deconvolution-using-single-cell-data.html#cb86-1" tabindex="-1"></a>anchors <span class="ot">&lt;-</span> <span class="fu">FindTransferAnchors</span>(</span>
+<span id="cb86-2"><a href="integration-deconvolution-using-single-cell-data.html#cb86-2" tabindex="-1"></a>  <span class="at">reference =</span> allen_reference        <span class="co"># Reference dataset (scRNA-seq) to transfer annotations from</span></span>
+<span id="cb86-3"><a href="integration-deconvolution-using-single-cell-data.html#cb86-3" tabindex="-1"></a>  , <span class="at">query =</span> cortex                   <span class="co"># Query dataset (spatial transcriptomics) to receive annotations</span></span>
+<span id="cb86-4"><a href="integration-deconvolution-using-single-cell-data.html#cb86-4" tabindex="-1"></a>  , <span class="at">normalization.method =</span> <span class="st">&quot;SCT&quot;</span>     <span class="co"># Normalization method to make datasets comparable (SCTransform)</span></span>
+<span id="cb86-5"><a href="integration-deconvolution-using-single-cell-data.html#cb86-5" tabindex="-1"></a>)</span>
+<span id="cb86-6"><a href="integration-deconvolution-using-single-cell-data.html#cb86-6" tabindex="-1"></a></span>
+<span id="cb86-7"><a href="integration-deconvolution-using-single-cell-data.html#cb86-7" tabindex="-1"></a></span>
+<span id="cb86-8"><a href="integration-deconvolution-using-single-cell-data.html#cb86-8" tabindex="-1"></a>predictions.assay <span class="ot">&lt;-</span> <span class="fu">TransferData</span>(</span>
+<span id="cb86-9"><a href="integration-deconvolution-using-single-cell-data.html#cb86-9" tabindex="-1"></a>  <span class="at">anchorset =</span> anchors                    <span class="co"># Anchor pairs from FindTransferAnchors linking scRNA-Seq to spatial data</span></span>
+<span id="cb86-10"><a href="integration-deconvolution-using-single-cell-data.html#cb86-10" tabindex="-1"></a>  , <span class="at">refdata =</span> allen_reference<span class="sc">$</span>subclass   <span class="co"># Reference scRNA-Seq to transfer (cell type labels from metadata column)</span></span>
+<span id="cb86-11"><a href="integration-deconvolution-using-single-cell-data.html#cb86-11" tabindex="-1"></a>  , <span class="at">prediction.assay =</span> <span class="cn">TRUE</span>              <span class="co"># Return full prediction scores for all cell types per spot</span></span>
+<span id="cb86-12"><a href="integration-deconvolution-using-single-cell-data.html#cb86-12" tabindex="-1"></a>  , <span class="at">weight.reduction =</span> cortex[[<span class="st">&quot;pca&quot;</span>]]   <span class="co"># Dimensional reduction from query to weight anchor contributions</span></span>
+<span id="cb86-13"><a href="integration-deconvolution-using-single-cell-data.html#cb86-13" tabindex="-1"></a>  , <span class="at">dims =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">30</span>                          <span class="co"># Dimensions to use for weighting anchor strength</span></span>
+<span id="cb86-14"><a href="integration-deconvolution-using-single-cell-data.html#cb86-14" tabindex="-1"></a>  , <span class="at">k.weight =</span> <span class="dv">45</span>                        <span class="co"># Number of neighbors to consider when weighting anchors</span></span>
+<span id="cb86-15"><a href="integration-deconvolution-using-single-cell-data.html#cb86-15" tabindex="-1"></a>)</span>
+<span id="cb86-16"><a href="integration-deconvolution-using-single-cell-data.html#cb86-16" tabindex="-1"></a></span>
+<span id="cb86-17"><a href="integration-deconvolution-using-single-cell-data.html#cb86-17" tabindex="-1"></a></span>
+<span id="cb86-18"><a href="integration-deconvolution-using-single-cell-data.html#cb86-18" tabindex="-1"></a>cortex[[<span class="st">&quot;predictions&quot;</span>]] <span class="ot">&lt;-</span> predictions.assay</span>
+<span id="cb86-19"><a href="integration-deconvolution-using-single-cell-data.html#cb86-19" tabindex="-1"></a></span>
+<span id="cb86-20"><a href="integration-deconvolution-using-single-cell-data.html#cb86-20" tabindex="-1"></a>tmp <span class="ot">&lt;-</span> predictions.assay<span class="sc">$</span>data[,<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>] </span>
+<span id="cb86-21"><a href="integration-deconvolution-using-single-cell-data.html#cb86-21" tabindex="-1"></a>tmp <span class="ot">&lt;-</span> <span class="fu">round</span>(predictions.assay<span class="sc">$</span>data[,<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>], <span class="dv">1</span>)</span>
+<span id="cb86-22"><a href="integration-deconvolution-using-single-cell-data.html#cb86-22" tabindex="-1"></a>tmp <span class="ot">&lt;-</span> tmp[<span class="fu">rowSums</span>(tmp) <span class="sc">&gt;</span> <span class="dv">0</span>,]</span>
+<span id="cb86-23"><a href="integration-deconvolution-using-single-cell-data.html#cb86-23" tabindex="-1"></a>tmp[tmp<span class="sc">==</span><span class="dv">0</span>] <span class="ot">&lt;-</span><span class="st">&quot;&quot;</span></span>
+<span id="cb86-24"><a href="integration-deconvolution-using-single-cell-data.html#cb86-24" tabindex="-1"></a></span>
+<span id="cb86-25"><a href="integration-deconvolution-using-single-cell-data.html#cb86-25" tabindex="-1"></a>tmp <span class="sc">%&gt;%</span>  <span class="fu">kable</span>(<span class="at">caption=</span><span class="st">&quot;Cell probability scores for 5 spots&quot;</span>)</span></code></pre></div>
+<table style="width:100%;">
+<caption><span id="tab:find-transfer-lbl">Table 3.1: </span>Cell probability scores for 5 spots</caption>
+<colgroup>
+<col width="10%" />
+<col width="17%" />
+<col width="17%" />
+<col width="17%" />
+<col width="17%" />
+<col width="17%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left"></th>
+<th align="left">AAACAGAGCGACTCCT-1</th>
+<th align="left">AAACGTGTTCGCCCTA-1</th>
+<th align="left">AAACTAACGTGGCGAC-1</th>
+<th align="left">AAAGGGATGTAGCAAG-1</th>
+<th align="left">AAAGGTAAGCTGTACC-1</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">L6 IT</td>
+<td align="left"></td>
+<td align="left">0.1</td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left">L2/3 IT</td>
+<td align="left"></td>
+<td align="left">0.1</td>
+<td align="left">0.2</td>
+<td align="left">0.1</td>
+<td align="left">0.1</td>
+</tr>
+<tr class="odd">
+<td align="left">L5 PT</td>
+<td align="left"></td>
+<td align="left">0.1</td>
+<td align="left"></td>
+<td align="left">0.1</td>
+<td align="left">0.1</td>
+</tr>
+<tr class="even">
+<td align="left">L4</td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">0.1</td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left">L5 IT</td>
+<td align="left">0.1</td>
+<td align="left">0.2</td>
+<td align="left">0.1</td>
+<td align="left">0.2</td>
+<td align="left">0.1</td>
+</tr>
+<tr class="even">
+<td align="left">Oligo</td>
+<td align="left">0.6</td>
+<td align="left">0.4</td>
+<td align="left">0.5</td>
+<td align="left">0.3</td>
+<td align="left">0.5</td>
+</tr>
+<tr class="odd">
+<td align="left">Astro</td>
+<td align="left">0.2</td>
+<td align="left"></td>
+<td align="left">0.2</td>
+<td align="left">0.2</td>
+<td align="left">0.3</td>
+</tr>
+<tr class="even">
+<td align="left">Macrophage</td>
+<td align="left">0.1</td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left">max</td>
+<td align="left">0.6</td>
+<td align="left">0.4</td>
+<td align="left">0.5</td>
+<td align="left">0.3</td>
+<td align="left">0.5</td>
+</tr>
+</tbody>
+</table>
+<p><strong>TransferData</strong> creates a probability matrix where each spatial spot gets a confidence score for every possible cell type, rather than just a single “best guess” assignment.</p>
+</div>
+<div id="visualise-specific-cell-types" class="section level3 hasAnchor" number="3.1.2">
+<h3><span class="header-section-number">3.1.2</span> 2.3 Visualise specific cell types<a href="integration-deconvolution-using-single-cell-data.html#visualise-specific-cell-types" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>In this case: “L6 CT” cells that govern Feedback control to thalamus</p>
+<div class="sourceCode" id="cb87"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb87-1"><a href="integration-deconvolution-using-single-cell-data.html#cb87-1" tabindex="-1"></a><span class="fu">DefaultAssay</span>(cortex) <span class="ot">&lt;-</span> <span class="st">&quot;predictions&quot;</span></span>
+<span id="cb87-2"><a href="integration-deconvolution-using-single-cell-data.html#cb87-2" tabindex="-1"></a></span>
+<span id="cb87-3"><a href="integration-deconvolution-using-single-cell-data.html#cb87-3" tabindex="-1"></a><span class="fu">SpatialFeaturePlot</span>(cortex, <span class="at">features =</span> <span class="fu">c</span>(<span class="st">&quot;L6 CT&quot;</span>, <span class="st">&quot;L2/3 IT&quot;</span>), <span class="at">pt.size.factor =</span> <span class="fl">1.6</span>, <span class="at">ncol =</span> <span class="dv">2</span>, <span class="at">crop =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<p><img src="spatial-transcriptomics-workflow_files/figure-html/predict-loc-L6CT-1.png" alt="" width="960" /></p>
+</div>
+<div id="find-spatially-variable-cell-types" class="section level3 hasAnchor" number="3.1.3">
+<h3><span class="header-section-number">3.1.3</span> 2.4 Find Spatially Variable Cell types<a href="integration-deconvolution-using-single-cell-data.html#find-spatially-variable-cell-types" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>Spatial statistics can now be being used to find <strong>cell types</strong> that cluster together spatially, rather than finding spatially variable genes.</p>
+<div class="sourceCode" id="cb88"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb88-1"><a href="integration-deconvolution-using-single-cell-data.html#cb88-1" tabindex="-1"></a>cortex <span class="ot">&lt;-</span> <span class="fu">FindSpatiallyVariableFeatures</span>(</span>
+<span id="cb88-2"><a href="integration-deconvolution-using-single-cell-data.html#cb88-2" tabindex="-1"></a>  cortex</span>
+<span id="cb88-3"><a href="integration-deconvolution-using-single-cell-data.html#cb88-3" tabindex="-1"></a>  , <span class="at">assay =</span> <span class="st">&quot;predictions&quot;</span></span>
+<span id="cb88-4"><a href="integration-deconvolution-using-single-cell-data.html#cb88-4" tabindex="-1"></a>  , <span class="at">selection.method =</span> <span class="st">&quot;moransi&quot;</span></span>
+<span id="cb88-5"><a href="integration-deconvolution-using-single-cell-data.html#cb88-5" tabindex="-1"></a>  , <span class="at">features =</span> <span class="fu">rownames</span>(cortex)</span>
+<span id="cb88-6"><a href="integration-deconvolution-using-single-cell-data.html#cb88-6" tabindex="-1"></a>  , <span class="at">r.metric =</span> <span class="dv">5</span></span>
+<span id="cb88-7"><a href="integration-deconvolution-using-single-cell-data.html#cb88-7" tabindex="-1"></a>  , <span class="at">slot =</span> <span class="st">&quot;data&quot;</span></span>
+<span id="cb88-8"><a href="integration-deconvolution-using-single-cell-data.html#cb88-8" tabindex="-1"></a>)</span>
+<span id="cb88-9"><a href="integration-deconvolution-using-single-cell-data.html#cb88-9" tabindex="-1"></a></span>
+<span id="cb88-10"><a href="integration-deconvolution-using-single-cell-data.html#cb88-10" tabindex="-1"></a>top.clusters <span class="ot">&lt;-</span> <span class="fu">head</span>(<span class="fu">SpatiallyVariableFeatures</span>(cortex, <span class="at">method =</span> <span class="st">&quot;moransi&quot;</span>), <span class="dv">4</span>)</span>
+<span id="cb88-11"><a href="integration-deconvolution-using-single-cell-data.html#cb88-11" tabindex="-1"></a></span>
+<span id="cb88-12"><a href="integration-deconvolution-using-single-cell-data.html#cb88-12" tabindex="-1"></a><span class="fu">SpatialPlot</span>(<span class="at">object =</span> cortex, <span class="at">features =</span> top.clusters, <span class="at">ncol =</span> <span class="dv">2</span>)</span></code></pre></div>
+<p><img src="spatial-transcriptomics-workflow_files/figure-html/find-spat-var-ct-1.png" alt="" width="960" /></p>
+<hr />
+</div>
+</div>
+<div id="spatial-deconvolution-using-rctd-robust-cell-type-decomposition" class="section level2 hasAnchor" number="3.2">
+<h2><span class="header-section-number">3.2</span> 3 Spatial deconvolution using RCTD (Robust Cell Type Decomposition)<a href="integration-deconvolution-using-single-cell-data.html#spatial-deconvolution-using-rctd-robust-cell-type-decomposition" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>Publication: Cable et al., Nature Biotechnology 2022</p>
+<p><strong>Strengths:</strong></p>
+<ul>
+<li>Handles differences between scRNA-seq and spatial data</li>
+<li>Recommended starting point by multiple benchmarking studies</li>
+<li>Good for large datasets (CPU efficient)</li>
+</ul>
+<p>Here we reuse the Allen Reference Dataset</p>
+<div class="sourceCode" id="cb89"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb89-1"><a href="integration-deconvolution-using-single-cell-data.html#cb89-1" tabindex="-1"></a><span class="co"># ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #</span></span>
+<span id="cb89-2"><a href="integration-deconvolution-using-single-cell-data.html#cb89-2" tabindex="-1"></a><span class="co"># 3.1 Set up query and reference with the RCTD functions &quot;Reference&quot; &amp; &quot;SpatialRNA&quot; </span></span>
+<span id="cb89-3"><a href="integration-deconvolution-using-single-cell-data.html#cb89-3" tabindex="-1"></a><span class="co"># ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #</span></span>
+<span id="cb89-4"><a href="integration-deconvolution-using-single-cell-data.html#cb89-4" tabindex="-1"></a></span>
+<span id="cb89-5"><a href="integration-deconvolution-using-single-cell-data.html#cb89-5" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">file.exists</span>(<span class="st">&quot;cache/allen-brain-rctd-ref.RDS&quot;</span>)) {</span>
+<span id="cb89-6"><a href="integration-deconvolution-using-single-cell-data.html#cb89-6" tabindex="-1"></a>  <span class="co"># Set up REFERENCE scRNA-Seq data</span></span>
+<span id="cb89-7"><a href="integration-deconvolution-using-single-cell-data.html#cb89-7" tabindex="-1"></a>  ref <span class="ot">&lt;-</span> <span class="fu">UpdateSeuratObject</span>(allen_reference)</span>
+<span id="cb89-8"><a href="integration-deconvolution-using-single-cell-data.html#cb89-8" tabindex="-1"></a>  <span class="fu">Idents</span>(ref) <span class="ot">&lt;-</span> <span class="st">&quot;celltype&quot;</span></span>
+<span id="cb89-9"><a href="integration-deconvolution-using-single-cell-data.html#cb89-9" tabindex="-1"></a>  </span>
+<span id="cb89-10"><a href="integration-deconvolution-using-single-cell-data.html#cb89-10" tabindex="-1"></a>  <span class="co"># Clusters ~~~~~~</span></span>
+<span id="cb89-11"><a href="integration-deconvolution-using-single-cell-data.html#cb89-11" tabindex="-1"></a>  <span class="co"># Remove prohibited slash (/) from subclass names</span></span>
+<span id="cb89-12"><a href="integration-deconvolution-using-single-cell-data.html#cb89-12" tabindex="-1"></a>  ref<span class="sc">$</span>subclass_fixed <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(ref<span class="sc">$</span>subclass)</span>
+<span id="cb89-13"><a href="integration-deconvolution-using-single-cell-data.html#cb89-13" tabindex="-1"></a>  <span class="fu">levels</span>(ref<span class="sc">$</span>subclass_fixed) <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">&quot;</span><span class="sc">\\</span><span class="st">/&quot;</span>, <span class="st">&quot;_&quot;</span>, <span class="fu">levels</span>(ref<span class="sc">$</span>subclass_fixed))</span>
+<span id="cb89-14"><a href="integration-deconvolution-using-single-cell-data.html#cb89-14" tabindex="-1"></a>  cluster <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(ref<span class="sc">$</span>subclass_fixed)</span>
+<span id="cb89-15"><a href="integration-deconvolution-using-single-cell-data.html#cb89-15" tabindex="-1"></a>  <span class="fu">names</span>(cluster) <span class="ot">&lt;-</span> <span class="fu">colnames</span>(ref)</span>
+<span id="cb89-16"><a href="integration-deconvolution-using-single-cell-data.html#cb89-16" tabindex="-1"></a>  <span class="co"># Check and remove cell types with &lt; 25 cells</span></span>
+<span id="cb89-17"><a href="integration-deconvolution-using-single-cell-data.html#cb89-17" tabindex="-1"></a>  cell_counts <span class="ot">&lt;-</span> <span class="fu">table</span>(cluster)</span>
+<span id="cb89-18"><a href="integration-deconvolution-using-single-cell-data.html#cb89-18" tabindex="-1"></a>  <span class="fu">print</span>(cell_counts)</span>
+<span id="cb89-19"><a href="integration-deconvolution-using-single-cell-data.html#cb89-19" tabindex="-1"></a>  </span>
+<span id="cb89-20"><a href="integration-deconvolution-using-single-cell-data.html#cb89-20" tabindex="-1"></a>  <span class="co"># Identify problematic cell types</span></span>
+<span id="cb89-21"><a href="integration-deconvolution-using-single-cell-data.html#cb89-21" tabindex="-1"></a>  low_count_types <span class="ot">&lt;-</span> <span class="fu">names</span>(cell_counts)[cell_counts <span class="sc">&lt;</span> <span class="dv">25</span>]</span>
+<span id="cb89-22"><a href="integration-deconvolution-using-single-cell-data.html#cb89-22" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">&quot;Cell types with &lt; 25 cells:&quot;</span>, <span class="fu">paste</span>(low_count_types, <span class="at">collapse =</span> <span class="st">&quot;, &quot;</span>), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb89-23"><a href="integration-deconvolution-using-single-cell-data.html#cb89-23" tabindex="-1"></a>  keep_cells <span class="ot">&lt;-</span> <span class="sc">!</span>cluster <span class="sc">%in%</span> low_count_types</span>
+<span id="cb89-24"><a href="integration-deconvolution-using-single-cell-data.html#cb89-24" tabindex="-1"></a>  cluster <span class="ot">&lt;-</span> <span class="fu">factor</span>(cluster[keep_cells])</span>
+<span id="cb89-25"><a href="integration-deconvolution-using-single-cell-data.html#cb89-25" tabindex="-1"></a>  </span>
+<span id="cb89-26"><a href="integration-deconvolution-using-single-cell-data.html#cb89-26" tabindex="-1"></a>  <span class="co"># Counts ~~~~~~</span></span>
+<span id="cb89-27"><a href="integration-deconvolution-using-single-cell-data.html#cb89-27" tabindex="-1"></a>  <span class="co"># Extract counts, clusters, UMI counts/spot to feed into Reference function </span></span>
+<span id="cb89-28"><a href="integration-deconvolution-using-single-cell-data.html#cb89-28" tabindex="-1"></a>  counts <span class="ot">&lt;-</span> allen_reference[[<span class="st">&quot;RNA&quot;</span>]]<span class="sc">$</span>counts[, keep_cells]</span>
+<span id="cb89-29"><a href="integration-deconvolution-using-single-cell-data.html#cb89-29" tabindex="-1"></a>  </span>
+<span id="cb89-30"><a href="integration-deconvolution-using-single-cell-data.html#cb89-30" tabindex="-1"></a>  nCount_UMI <span class="ot">&lt;-</span> ref<span class="sc">$</span>nCount_RNA</span>
+<span id="cb89-31"><a href="integration-deconvolution-using-single-cell-data.html#cb89-31" tabindex="-1"></a>  <span class="fu">names</span>(nCount_UMI) <span class="ot">&lt;-</span> <span class="fu">colnames</span>(ref)</span>
+<span id="cb89-32"><a href="integration-deconvolution-using-single-cell-data.html#cb89-32" tabindex="-1"></a>  nCount_UMI <span class="ot">&lt;-</span> nCount_UMI[keep_cells]</span>
+<span id="cb89-33"><a href="integration-deconvolution-using-single-cell-data.html#cb89-33" tabindex="-1"></a>  </span>
+<span id="cb89-34"><a href="integration-deconvolution-using-single-cell-data.html#cb89-34" tabindex="-1"></a>  reference <span class="ot">&lt;-</span> <span class="fu">Reference</span>(counts   <span class="co"># scRNA-seq counts</span></span>
+<span id="cb89-35"><a href="integration-deconvolution-using-single-cell-data.html#cb89-35" tabindex="-1"></a>                         , cluster  <span class="co"># predefined cell clusters</span></span>
+<span id="cb89-36"><a href="integration-deconvolution-using-single-cell-data.html#cb89-36" tabindex="-1"></a>                         , nCount_UMI <span class="co">#library size</span></span>
+<span id="cb89-37"><a href="integration-deconvolution-using-single-cell-data.html#cb89-37" tabindex="-1"></a>  )</span>
+<span id="cb89-38"><a href="integration-deconvolution-using-single-cell-data.html#cb89-38" tabindex="-1"></a>  </span>
+<span id="cb89-39"><a href="integration-deconvolution-using-single-cell-data.html#cb89-39" tabindex="-1"></a>  <span class="co"># Set up QUERY Spatial Data</span></span>
+<span id="cb89-40"><a href="integration-deconvolution-using-single-cell-data.html#cb89-40" tabindex="-1"></a>  counts <span class="ot">&lt;-</span> cortex[[<span class="st">&quot;Spatial&quot;</span>]]<span class="sc">$</span>counts</span>
+<span id="cb89-41"><a href="integration-deconvolution-using-single-cell-data.html#cb89-41" tabindex="-1"></a>  coords <span class="ot">&lt;-</span> <span class="fu">GetTissueCoordinates</span>(cortex)</span>
+<span id="cb89-42"><a href="integration-deconvolution-using-single-cell-data.html#cb89-42" tabindex="-1"></a>  <span class="fu">colnames</span>(coords) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;x&quot;</span>, <span class="st">&quot;y&quot;</span>)</span>
+<span id="cb89-43"><a href="integration-deconvolution-using-single-cell-data.html#cb89-43" tabindex="-1"></a>  </span>
+<span id="cb89-44"><a href="integration-deconvolution-using-single-cell-data.html#cb89-44" tabindex="-1"></a>  coords[<span class="fu">is.na</span>(<span class="fu">colnames</span>(coords))] <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
+<span id="cb89-45"><a href="integration-deconvolution-using-single-cell-data.html#cb89-45" tabindex="-1"></a>  </span>
+<span id="cb89-46"><a href="integration-deconvolution-using-single-cell-data.html#cb89-46" tabindex="-1"></a>  <span class="co"># Create SpatialRNA object for the RCTD</span></span>
+<span id="cb89-47"><a href="integration-deconvolution-using-single-cell-data.html#cb89-47" tabindex="-1"></a>  query <span class="ot">&lt;-</span> <span class="fu">SpatialRNA</span>(</span>
+<span id="cb89-48"><a href="integration-deconvolution-using-single-cell-data.html#cb89-48" tabindex="-1"></a>    coords               <span class="co"># Spatial coordinates</span></span>
+<span id="cb89-49"><a href="integration-deconvolution-using-single-cell-data.html#cb89-49" tabindex="-1"></a>    , counts             <span class="co"># Gene Count Matrix (Raw)</span></span>
+<span id="cb89-50"><a href="integration-deconvolution-using-single-cell-data.html#cb89-50" tabindex="-1"></a>    , <span class="fu">colSums</span>(counts)    <span class="co"># Library size (Umi / spot)</span></span>
+<span id="cb89-51"><a href="integration-deconvolution-using-single-cell-data.html#cb89-51" tabindex="-1"></a>  )</span>
+<span id="cb89-52"><a href="integration-deconvolution-using-single-cell-data.html#cb89-52" tabindex="-1"></a>  </span>
+<span id="cb89-53"><a href="integration-deconvolution-using-single-cell-data.html#cb89-53" tabindex="-1"></a>  <span class="fu">saveRDS</span>(reference, <span class="st">&quot;cache/allen-brain-rctd-ref.RDS&quot;</span>) </span>
+<span id="cb89-54"><a href="integration-deconvolution-using-single-cell-data.html#cb89-54" tabindex="-1"></a>  <span class="fu">saveRDS</span>(query, <span class="st">&quot;cache/stxbrain-rctd-query.RDS&quot;</span>) </span>
+<span id="cb89-55"><a href="integration-deconvolution-using-single-cell-data.html#cb89-55" tabindex="-1"></a>} <span class="cf">else</span> {</span>
+<span id="cb89-56"><a href="integration-deconvolution-using-single-cell-data.html#cb89-56" tabindex="-1"></a>  reference <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;cache/allen-brain-rctd-ref.RDS&quot;</span>) </span>
+<span id="cb89-57"><a href="integration-deconvolution-using-single-cell-data.html#cb89-57" tabindex="-1"></a>  query <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;cache/stxbrain-rctd-query.RDS&quot;</span>) </span>
+<span id="cb89-58"><a href="integration-deconvolution-using-single-cell-data.html#cb89-58" tabindex="-1"></a>} </span></code></pre></div>
+<hr />
+<div id="run-rctd" class="section level3 hasAnchor" number="3.2.1">
+<h3><span class="header-section-number">3.2.1</span> 3.1 Run RCTD<a href="integration-deconvolution-using-single-cell-data.html#run-rctd" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<ul>
+<li>Reference scRNA-Seq and query Spatial data are used to annotate the spatial dataset</li>
+<li>Cell type labels added to the query Spatial data.</li>
+<li>Note: RCTD has parallel processing options.</li>
+</ul>
+<strong>How does RCTD work</strong>
+<details>
+<summary>
+Click to show table
+</summary>
+<ul>
+<li>Finds cell type markers using scRNA-seq</li>
+<li>Find cell type composition (cell proportions) of each spatial data spot</li>
+<li>Get weighted sums for (a) gene expression per cell type (b) cell proportion per spot</li>
+<li>Accounts for technical differences between scRNA-seq and spatial data</li>
+<li>Uses maximum likelihood estimation to find best-fitting proportions</li>
+<li>Classifies spots based on confidence<br />
+</li>
+<li>“singlet”: &gt;95% one cell type)</li>
+<li>“doublet”: mixture of 2 cell types<br />
+</li>
+<li>“reject”: poor fit/ambiguous</li>
+</ul>
+</details>
+<div class="sourceCode" id="cb90"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb90-1"><a href="integration-deconvolution-using-single-cell-data.html#cb90-1" tabindex="-1"></a>RCTD <span class="ot">&lt;-</span> <span class="fu">create.RCTD</span>(query</span>
+<span id="cb90-2"><a href="integration-deconvolution-using-single-cell-data.html#cb90-2" tabindex="-1"></a>                    , reference</span>
+<span id="cb90-3"><a href="integration-deconvolution-using-single-cell-data.html#cb90-3" tabindex="-1"></a>                    , <span class="at">max_cores =</span> <span class="dv">7</span></span>
+<span id="cb90-4"><a href="integration-deconvolution-using-single-cell-data.html#cb90-4" tabindex="-1"></a>)</span></code></pre></div>
+<pre><code>## 
+##      Astro       Endo    L2_3 IT         L4      L5 IT      L5 PT      L6 CT 
+##        368         94        982       1401        880        544        960 
+##      L6 IT        L6b      Lamp5 Macrophage      Meis2         NP      Oligo 
+##       1872        358       1122         51         45        362         91 
+##       Peri      Pvalb   Serpinf1        SMC       Sncg        Sst        Vip 
+##         32       1337         27         55        125       1741       1728 
+##       VLMC 
+##         67</code></pre>
+<div class="sourceCode" id="cb92"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb92-1"><a href="integration-deconvolution-using-single-cell-data.html#cb92-1" tabindex="-1"></a>RCTD <span class="ot">&lt;-</span> <span class="fu">run.RCTD</span>(</span>
+<span id="cb92-2"><a href="integration-deconvolution-using-single-cell-data.html#cb92-2" tabindex="-1"></a>  RCTD  <span class="co"># RCTD object containing spatial data and reference for deconvolution</span></span>
+<span id="cb92-3"><a href="integration-deconvolution-using-single-cell-data.html#cb92-3" tabindex="-1"></a>  , <span class="at">doublet_mode =</span> <span class="st">&quot;doublet&quot;</span> <span class="co"># Deconvolution mode allowing spots to contain 1-2 dominant cell types</span></span>
+<span id="cb92-4"><a href="integration-deconvolution-using-single-cell-data.html#cb92-4" tabindex="-1"></a>)</span>
+<span id="cb92-5"><a href="integration-deconvolution-using-single-cell-data.html#cb92-5" tabindex="-1"></a></span>
+<span id="cb92-6"><a href="integration-deconvolution-using-single-cell-data.html#cb92-6" tabindex="-1"></a><span class="co"># Add result to Seurat Object</span></span>
+<span id="cb92-7"><a href="integration-deconvolution-using-single-cell-data.html#cb92-7" tabindex="-1"></a>cortex <span class="ot">&lt;-</span> <span class="fu">AddMetaData</span>(</span>
+<span id="cb92-8"><a href="integration-deconvolution-using-single-cell-data.html#cb92-8" tabindex="-1"></a>  cortex</span>
+<span id="cb92-9"><a href="integration-deconvolution-using-single-cell-data.html#cb92-9" tabindex="-1"></a>  , <span class="at">metadata =</span> RCTD<span class="sc">@</span>results<span class="sc">$</span>results_df</span>
+<span id="cb92-10"><a href="integration-deconvolution-using-single-cell-data.html#cb92-10" tabindex="-1"></a>)</span>
+<span id="cb92-11"><a href="integration-deconvolution-using-single-cell-data.html#cb92-11" tabindex="-1"></a></span>
+<span id="cb92-12"><a href="integration-deconvolution-using-single-cell-data.html#cb92-12" tabindex="-1"></a></span>
+<span id="cb92-13"><a href="integration-deconvolution-using-single-cell-data.html#cb92-13" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;RCTD metadata columns:</span><span class="sc">\n</span><span class="st">&quot;</span>) </span></code></pre></div>
+<pre><code>## RCTD metadata columns:</code></pre>
+<div class="sourceCode" id="cb94"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb94-1"><a href="integration-deconvolution-using-single-cell-data.html#cb94-1" tabindex="-1"></a><span class="fu">colnames</span>(cortex<span class="sc">@</span>meta.data)</span></code></pre></div>
+<pre><code>##  [1] &quot;orig.ident&quot;       &quot;nCount_Spatial&quot;   &quot;nFeature_Spatial&quot; &quot;slice&quot;           
+##  [5] &quot;region&quot;           &quot;spatial_x&quot;        &quot;spatial_y&quot;        &quot;percent.mt&quot;      
+##  [9] &quot;nCount_SCT&quot;       &quot;nFeature_SCT&quot;     &quot;SCT_snn_res.0.8&quot;  &quot;seurat_clusters&quot; 
+## [13] &quot;cluster_names&quot;    &quot;x&quot;                &quot;y&quot;                &quot;spot_class&quot;      
+## [17] &quot;first_type&quot;       &quot;second_type&quot;      &quot;first_class&quot;      &quot;second_class&quot;    
+## [21] &quot;min_score&quot;        &quot;singlet_score&quot;    &quot;conv_all&quot;         &quot;conv_doublet&quot;</code></pre>
+<hr />
+</div>
+<div id="plot-the-rctd-annotations." class="section level3 hasAnchor" number="3.2.2">
+<h3><span class="header-section-number">3.2.2</span> 3.2 Plot the RCTD annotations.<a href="integration-deconvolution-using-single-cell-data.html#plot-the-rctd-annotations." class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>In doublet mode you get:</p>
+<ul>
+<li>first_type: most dominant gene per spot</li>
+<li>second_type: second most dominant gene per spot</li>
+</ul>
+<div class="sourceCode" id="cb96"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb96-1"><a href="integration-deconvolution-using-single-cell-data.html#cb96-1" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">SpatialDimPlot</span>(cortex, <span class="at">group.by =</span> <span class="st">&quot;first_type&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb96-2"><a href="integration-deconvolution-using-single-cell-data.html#cb96-2" tabindex="-1"></a>  <span class="fu">scale_fill_npg</span>()</span>
+<span id="cb96-3"><a href="integration-deconvolution-using-single-cell-data.html#cb96-3" tabindex="-1"></a>p2 <span class="ot">&lt;-</span> <span class="fu">SpatialDimPlot</span>(cortex, <span class="at">group.by =</span> <span class="st">&quot;second_type&quot;</span>)<span class="sc">+</span> </span>
+<span id="cb96-4"><a href="integration-deconvolution-using-single-cell-data.html#cb96-4" tabindex="-1"></a>  <span class="fu">scale_fill_npg</span>()</span>
+<span id="cb96-5"><a href="integration-deconvolution-using-single-cell-data.html#cb96-5" tabindex="-1"></a>p1 <span class="sc">|</span> p2</span></code></pre></div>
+<p><img src="spatial-transcriptomics-workflow_files/figure-html/rctd-plot-1.png" alt="" width="960" /></p>
+<hr />
+</div>
+<div id="session-info" class="section level3 hasAnchor" number="3.2.3">
+<h3><span class="header-section-number">3.2.3</span> Session Info<a href="integration-deconvolution-using-single-cell-data.html#session-info" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<details>
+<summary>
+Click to show table
+</summary>
+<div class="sourceCode" id="cb97"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb97-1"><a href="integration-deconvolution-using-single-cell-data.html#cb97-1" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span></code></pre></div>
+<pre><code>## R version 4.5.0 (2025-04-11 ucrt)
+## Platform: x86_64-w64-mingw32/x64
+## Running under: Windows 11 x64 (build 26200)
+## 
+## Matrix products: default
+##   LAPACK version 3.12.1
+## 
+## locale:
+## [1] LC_COLLATE=English_United Kingdom.utf8 
+## [2] LC_CTYPE=English_United Kingdom.utf8   
+## [3] LC_MONETARY=English_United Kingdom.utf8
+## [4] LC_NUMERIC=C                           
+## [5] LC_TIME=English_United Kingdom.utf8    
+## 
+## time zone: Europe/London
+## tzcode source: internal
+## 
+## attached base packages:
+## [1] stats     graphics  grDevices utils     datasets  methods   base     
+## 
+## other attached packages:
+##  [1] ggsci_5.0.0        spacexr_2.2.1      knitr_1.51         future_1.70.0     
+##  [5] sctransform_0.4.3  pheatmap_1.0.13    spdep_1.4-2        sf_1.1-1          
+##  [9] spData_2.3.5       patchwork_1.3.2    viridis_0.6.5      viridisLite_0.4.3 
+## [13] Matrix_1.7-3       dplyr_1.2.0        ggplot2_4.0.2      Seurat_5.5.0      
+## [17] SeuratObject_5.4.0 sp_2.2-1          
+## 
+## loaded via a namespace (and not attached):
+##   [1] RColorBrewer_1.1-3     wk_0.9.5               rstudioapi_0.18.0     
+##   [4] jsonlite_2.0.0         magrittr_2.0.4         spatstat.utils_3.2-3  
+##   [7] farver_2.1.2           rmarkdown_2.30         vctrs_0.7.1           
+##  [10] ROCR_1.0-12            spatstat.explore_3.8-0 htmltools_0.5.9       
+##  [13] s2_1.1.9               sass_0.4.10            parallelly_1.46.1     
+##  [16] KernSmooth_2.23-26     bslib_0.10.0           htmlwidgets_1.6.4     
+##  [19] ica_1.0-3              plyr_1.8.9             plotly_4.12.0         
+##  [22] zoo_1.8-15             cachem_1.1.0           igraph_2.3.1          
+##  [25] iterators_1.0.14       mime_0.13              lifecycle_1.0.5       
+##  [28] pkgconfig_2.0.3        R6_2.6.1               fastmap_1.2.0         
+##  [31] fitdistrplus_1.2-6     shiny_1.13.0           digest_0.6.39         
+##  [34] tensor_1.5.1           RSpectra_0.16-2        irlba_2.3.7           
+##  [37] progressr_0.18.0       spatstat.sparse_3.2-0  httr_1.4.8            
+##  [40] polyclip_1.10-7        abind_1.4-8            compiler_4.5.0        
+##  [43] proxy_0.4-29           doParallel_1.0.17      withr_3.0.2           
+##  [46] S7_0.2.1               DBI_1.3.0              fastDummies_1.7.6     
+##  [49] MASS_7.3-65            classInt_0.4-11        tools_4.5.0           
+##  [52] units_1.0-1            lmtest_0.9-40          otel_0.2.0            
+##  [55] httpuv_1.6.17          future.apply_1.20.2    goftest_1.2-3         
+##  [58] glue_1.8.0             nlme_3.1-168           promises_1.5.0        
+##  [61] grid_4.5.0             Rtsne_0.17             cluster_2.1.8.1       
+##  [64] reshape2_1.4.5         generics_0.1.4         gtable_0.3.6          
+##  [67] spatstat.data_3.1-9    class_7.3-23           tidyr_1.3.2           
+##  [70] data.table_1.18.2.1    spatstat.geom_3.8-1    RcppAnnoy_0.0.23      
+##  [73] foreach_1.5.2          ggrepel_0.9.8          RANN_2.6.2            
+##  [76] pillar_1.11.1          stringr_1.6.0          spam_2.11-3           
+##  [79] RcppHNSW_0.6.0         later_1.4.8            splines_4.5.0         
+##  [82] lattice_0.22-6         survival_3.8-3         deldir_2.0-4          
+##  [85] tidyselect_1.2.1       miniUI_0.1.2           pbapply_1.7-4         
+##  [88] gridExtra_2.3          bookdown_0.46          scattermore_1.2       
+##  [91] xfun_0.56              matrixStats_1.5.0      stringi_1.8.7         
+##  [94] lazyeval_0.2.3         yaml_2.3.12            boot_1.3-31           
+##  [97] evaluate_1.0.5         codetools_0.2-20       tibble_3.3.1          
+## [100] cli_3.6.5              uwot_0.2.4             xtable_1.8-8          
+## [103] reticulate_1.46.0      jquerylib_0.1.4        dichromat_2.0-0.1     
+## [106] Rcpp_1.1.1             globals_0.19.1         spatstat.random_3.4-5 
+## [109] png_0.1-9              spatstat.univar_3.2-0  parallel_4.5.0        
+## [112] dotCall64_1.2          listenv_0.10.1         scales_1.4.0          
+## [115] ggridges_0.5.7         e1071_1.7-17           purrr_1.2.1           
+## [118] rlang_1.1.7            cowplot_1.2.0</code></pre>
+</details>
+
+</div>
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="within-slice-spatial-analysis.html" class="navigation navigation-prev navigation-unique" aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+  "sharing": {
+    "github": true,
+    "facebook": false,
+    "twitter": false,
+    "linkedin": false,
+    "weibo": false,
+    "instapaper": false,
+    "vk": false,
+    "whatsapp": false,
+    "all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+  },
+  "fontsettings": {
+    "theme": "white",
+    "family": "sans",
+    "size": 2
+  },
+  "edit": {
+    "link": null,
+    "text": null
+  },
+  "history": {
+    "link": null,
+    "text": null
+  },
+  "view": {
+    "link": null,
+    "text": null
+  },
+  "download": null,
+  "search": {
+    "engine": "fuse",
+    "options": null
+  },
+  "toc": {
+    "collapse": "section",
+    "scroll_highlight": true
+  },
+  "toolbar": {
+    "position": "fixed"
+  }
+});
+});
+</script>
+
+</body>
+
+</html>
