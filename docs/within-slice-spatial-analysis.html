@@ -1,0 +1,1227 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>Chapter 2 Within-Slice Spatial Analysis | Spatial Transcriptomics Workflow</title>
+  <meta name="description" content="A public-facing Bookdown/GitBook workflow for quality control, within-slice spatial analysis, and scRNA-seq integration of mouse brain spatial transcriptomics data." />
+  <meta name="generator" content="bookdown 0.46 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="Chapter 2 Within-Slice Spatial Analysis | Spatial Transcriptomics Workflow" />
+  <meta property="og:type" content="book" />
+  
+  <meta property="og:description" content="A public-facing Bookdown/GitBook workflow for quality control, within-slice spatial analysis, and scRNA-seq integration of mouse brain spatial transcriptomics data." />
+  
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Chapter 2 Within-Slice Spatial Analysis | Spatial Transcriptomics Workflow" />
+  
+  <meta name="twitter:description" content="A public-facing Bookdown/GitBook workflow for quality control, within-slice spatial analysis, and scRNA-seq integration of mouse brain spatial transcriptomics data." />
+  
+
+<meta name="author" content="Nabila Rahman" />
+
+
+<meta name="date" content="2026-05-26" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="quality-control-and-preprocessing.html"/>
+<link rel="next" href="integration-deconvolution-using-single-cell-data.html"/>
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
+
+
+<style type="text/css">
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  background-color: #f8f8f8; }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ef2929; } /* Alert */
+code span.an { color: #8f5902; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #204a87; } /* Attribute */
+code span.bn { color: #0000cf; } /* BaseN */
+code span.cf { color: #204a87; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4e9a06; } /* Char */
+code span.cn { color: #8f5902; } /* Constant */
+code span.co { color: #8f5902; font-style: italic; } /* Comment */
+code span.cv { color: #8f5902; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #8f5902; font-weight: bold; font-style: italic; } /* Documentation */
+code span.dt { color: #204a87; } /* DataType */
+code span.dv { color: #0000cf; } /* DecVal */
+code span.er { color: #a40000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #0000cf; } /* Float */
+code span.fu { color: #204a87; font-weight: bold; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #8f5902; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #204a87; font-weight: bold; } /* Keyword */
+code span.op { color: #ce5c00; font-weight: bold; } /* Operator */
+code span.ot { color: #8f5902; } /* Other */
+code span.pp { color: #8f5902; font-style: italic; } /* Preprocessor */
+code span.sc { color: #ce5c00; font-weight: bold; } /* SpecialChar */
+code span.ss { color: #4e9a06; } /* SpecialString */
+code span.st { color: #4e9a06; } /* String */
+code span.va { color: #000000; } /* Variable */
+code span.vs { color: #4e9a06; } /* VerbatimString */
+code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<style type="text/css">
+  
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+</style>
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">Spatial Transcriptomics Workflow</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>About This Book</a>
+<ul>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#what-this-project-does"><i class="fa fa-check"></i>What This Project Does</a></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#what-you-have-built-well"><i class="fa fa-check"></i>What You Have Built Well</a></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#public-readiness-notes"><i class="fa fa-check"></i>Public-Readiness Notes</a></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#interpretation-caveats"><i class="fa fa-check"></i>Interpretation Caveats</a></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#how-to-build-in-rstudio"><i class="fa fa-check"></i>How To Build In RStudio</a></li>
+</ul></li>
+<li class="chapter" data-level="1" data-path="quality-control-and-preprocessing.html"><a href="quality-control-and-preprocessing.html"><i class="fa fa-check"></i><b>1</b> Quality Control and Preprocessing</a>
+<ul>
+<li class="chapter" data-level="1.1" data-path="quality-control-and-preprocessing.html"><a href="quality-control-and-preprocessing.html#overview"><i class="fa fa-check"></i><b>1.1</b> Overview</a></li>
+<li class="chapter" data-level="1.2" data-path="quality-control-and-preprocessing.html"><a href="quality-control-and-preprocessing.html#key-concepts"><i class="fa fa-check"></i><b>1.2</b> Key Concepts</a>
+<ul>
+<li class="chapter" data-level="1.2.1" data-path="quality-control-and-preprocessing.html"><a href="quality-control-and-preprocessing.html#dataset-properties"><i class="fa fa-check"></i><b>1.2.1</b> Dataset Properties</a></li>
+<li class="chapter" data-level="1.2.2" data-path="quality-control-and-preprocessing.html"><a href="quality-control-and-preprocessing.html#load-data"><i class="fa fa-check"></i><b>1.2.2</b> Load Data</a></li>
+</ul></li>
+<li class="chapter" data-level="1.3" data-path="quality-control-and-preprocessing.html"><a href="quality-control-and-preprocessing.html#qc-metrics"><i class="fa fa-check"></i><b>1.3</b> 1. QC Metrics</a>
+<ul>
+<li class="chapter" data-level="1.3.1" data-path="quality-control-and-preprocessing.html"><a href="quality-control-and-preprocessing.html#spatial-coordinates"><i class="fa fa-check"></i><b>1.3.1</b> 1.1 Spatial Coordinates</a></li>
+<li class="chapter" data-level="1.3.2" data-path="quality-control-and-preprocessing.html"><a href="quality-control-and-preprocessing.html#seurat-object-summary"><i class="fa fa-check"></i><b>1.3.2</b> 1.2 Seurat object summary</a></li>
+<li class="chapter" data-level="1.3.3" data-path="quality-control-and-preprocessing.html"><a href="quality-control-and-preprocessing.html#basic-dataset-dimensions"><i class="fa fa-check"></i><b>1.3.3</b> 1.3 Basic Dataset Dimensions</a></li>
+<li class="chapter" data-level="1.3.4" data-path="quality-control-and-preprocessing.html"><a href="quality-control-and-preprocessing.html#sequencing-depth"><i class="fa fa-check"></i><b>1.3.4</b> 1.4 Sequencing Depth</a></li>
+<li class="chapter" data-level="1.3.5" data-path="quality-control-and-preprocessing.html"><a href="quality-control-and-preprocessing.html#umi-counts-per-spot"><i class="fa fa-check"></i><b>1.3.5</b> 1.5 UMI Counts per Spot</a></li>
+<li class="chapter" data-level="1.3.6" data-path="quality-control-and-preprocessing.html"><a href="quality-control-and-preprocessing.html#low-umi-spots"><i class="fa fa-check"></i><b>1.3.6</b> 1.5.1 Low UMI Spots</a></li>
+<li class="chapter" data-level="1.3.7" data-path="quality-control-and-preprocessing.html"><a href="quality-control-and-preprocessing.html#features-genes-per-spot"><i class="fa fa-check"></i><b>1.3.7</b> 1.6 Features (Genes) per Spot</a></li>
+<li class="chapter" data-level="1.3.8" data-path="quality-control-and-preprocessing.html"><a href="quality-control-and-preprocessing.html#low-feature-spots"><i class="fa fa-check"></i><b>1.3.8</b> 1.6.1 Low Feature Spots</a></li>
+<li class="chapter" data-level="1.3.9" data-path="quality-control-and-preprocessing.html"><a href="quality-control-and-preprocessing.html#umi-vs-features-correlation"><i class="fa fa-check"></i><b>1.3.9</b> 1.7 UMI vs Features Correlation</a></li>
+<li class="chapter" data-level="1.3.10" data-path="quality-control-and-preprocessing.html"><a href="quality-control-and-preprocessing.html#outlier-detection"><i class="fa fa-check"></i><b>1.3.10</b> 1.8 Outlier Detection</a></li>
+<li class="chapter" data-level="1.3.11" data-path="quality-control-and-preprocessing.html"><a href="quality-control-and-preprocessing.html#sparsity-analysis"><i class="fa fa-check"></i><b>1.3.11</b> 1.9 Sparsity Analysis</a></li>
+</ul></li>
+<li class="chapter" data-level="1.4" data-path="quality-control-and-preprocessing.html"><a href="quality-control-and-preprocessing.html#quality-control-visualizations"><i class="fa fa-check"></i><b>1.4</b> 2. Quality Control Visualizations</a>
+<ul>
+<li class="chapter" data-level="1.4.1" data-path="quality-control-and-preprocessing.html"><a href="quality-control-and-preprocessing.html#plot-1-distribution-of-umi-counts-histogram"><i class="fa fa-check"></i><b>1.4.1</b> 2.1 Plot 1: Distribution of UMI Counts (Histogram)</a></li>
+<li class="chapter" data-level="1.4.2" data-path="quality-control-and-preprocessing.html"><a href="quality-control-and-preprocessing.html#plot-2-distribution-of-features-histogram"><i class="fa fa-check"></i><b>1.4.2</b> 2.2 Plot 2: Distribution of Features (Histogram)</a></li>
+<li class="chapter" data-level="1.4.3" data-path="quality-control-and-preprocessing.html"><a href="quality-control-and-preprocessing.html#plot-3-umi-vs-features-correlation-scatter-plot"><i class="fa fa-check"></i><b>1.4.3</b> 2.3 Plot 3: UMI vs Features Correlation (Scatter Plot)</a></li>
+<li class="chapter" data-level="1.4.4" data-path="quality-control-and-preprocessing.html"><a href="quality-control-and-preprocessing.html#plot-4-spatial-distribution-of-umi-counts"><i class="fa fa-check"></i><b>1.4.4</b> 2.4 Plot 4: Spatial Distribution of UMI Counts</a></li>
+<li class="chapter" data-level="1.4.5" data-path="quality-control-and-preprocessing.html"><a href="quality-control-and-preprocessing.html#mitochondrial"><i class="fa fa-check"></i><b>1.4.5</b> 2.5 Mitochondrial %</a></li>
+<li class="chapter" data-level="1.4.6" data-path="quality-control-and-preprocessing.html"><a href="quality-control-and-preprocessing.html#filtering"><i class="fa fa-check"></i><b>1.4.6</b> 2.6 Filtering</a></li>
+</ul></li>
+<li class="chapter" data-level="1.5" data-path="quality-control-and-preprocessing.html"><a href="quality-control-and-preprocessing.html#preprocessing"><i class="fa fa-check"></i><b>1.5</b> 3. Preprocessing</a>
+<ul>
+<li class="chapter" data-level="1.5.1" data-path="quality-control-and-preprocessing.html"><a href="quality-control-and-preprocessing.html#dimensionality-reduction-and-clustering"><i class="fa fa-check"></i><b>1.5.1</b> 3.1 Dimensionality Reduction and Clustering</a></li>
+<li class="chapter" data-level="1.5.2" data-path="quality-control-and-preprocessing.html"><a href="quality-control-and-preprocessing.html#cluster-visualisation"><i class="fa fa-check"></i><b>1.5.2</b> 3.2 Cluster Visualisation</a></li>
+<li class="chapter" data-level="1.5.3" data-path="quality-control-and-preprocessing.html"><a href="quality-control-and-preprocessing.html#visualise-specific-clusters"><i class="fa fa-check"></i><b>1.5.3</b> 3.3 Visualise specific clusters</a></li>
+<li class="chapter" data-level="1.5.4" data-path="quality-control-and-preprocessing.html"><a href="quality-control-and-preprocessing.html#top-10-variable-genes"><i class="fa fa-check"></i><b>1.5.4</b> 3.4 Top 10 Variable Genes</a></li>
+<li class="chapter" data-level="1.5.5" data-path="quality-control-and-preprocessing.html"><a href="quality-control-and-preprocessing.html#clustering-assignments"><i class="fa fa-check"></i><b>1.5.5</b> 3.5 Clustering Assignments</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="within-slice-spatial-analysis.html"><a href="within-slice-spatial-analysis.html"><i class="fa fa-check"></i><b>2</b> Within-Slice Spatial Analysis</a>
+<ul>
+<li class="chapter" data-level="2.1" data-path="within-slice-spatial-analysis.html"><a href="within-slice-spatial-analysis.html#gene-expression-patterns"><i class="fa fa-check"></i><b>2.1</b> 1 Gene Expression Patterns</a>
+<ul>
+<li class="chapter" data-level="2.1.1" data-path="within-slice-spatial-analysis.html"><a href="within-slice-spatial-analysis.html#spatial-expression-of-top-expressed-brain-markers"><i class="fa fa-check"></i><b>2.1.1</b> 1.1 Spatial Expression of Top Expressed Brain Markers</a></li>
+<li class="chapter" data-level="2.1.2" data-path="within-slice-spatial-analysis.html"><a href="within-slice-spatial-analysis.html#select-top-genes"><i class="fa fa-check"></i><b>2.1.2</b> 1.2 Select top Genes</a></li>
+<li class="chapter" data-level="2.1.3" data-path="within-slice-spatial-analysis.html"><a href="within-slice-spatial-analysis.html#visualise-top-expressed-genes"><i class="fa fa-check"></i><b>2.1.3</b> 1.3 Visualise Top Expressed Genes</a></li>
+</ul></li>
+<li class="chapter" data-level="2.2" data-path="within-slice-spatial-analysis.html"><a href="within-slice-spatial-analysis.html#autocorrelation-analysis"><i class="fa fa-check"></i><b>2.2</b> 2. Autocorrelation Analysis</a>
+<ul>
+<li class="chapter" data-level="2.2.1" data-path="within-slice-spatial-analysis.html"><a href="within-slice-spatial-analysis.html#location-based-spatial-auto-correlation"><i class="fa fa-check"></i><b>2.2.1</b> 2.1 Location-Based Spatial Auto Correlation</a></li>
+<li class="chapter" data-level="2.2.2" data-path="within-slice-spatial-analysis.html"><a href="within-slice-spatial-analysis.html#differential-expression-between-anatomical-regions"><i class="fa fa-check"></i><b>2.2.2</b> 2.2 Differential Expression Between Anatomical Regions</a></li>
+<li class="chapter" data-level="2.2.3" data-path="within-slice-spatial-analysis.html"><a href="within-slice-spatial-analysis.html#hybrid-approach"><i class="fa fa-check"></i><b>2.2.3</b> 2.3 Hybrid Approach</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="integration-deconvolution-using-single-cell-data.html"><a href="integration-deconvolution-using-single-cell-data.html"><i class="fa fa-check"></i><b>3</b> Integration / Deconvolution using Single-Cell Data</a>
+<ul>
+<li class="chapter" data-level="3.0.1" data-path="integration-deconvolution-using-single-cell-data.html"><a href="integration-deconvolution-using-single-cell-data.html#preparing-data"><i class="fa fa-check"></i><b>3.0.1</b> 1.1 Preparing Data</a></li>
+<li class="chapter" data-level="3.0.2" data-path="integration-deconvolution-using-single-cell-data.html"><a href="integration-deconvolution-using-single-cell-data.html#extract-cortical-region"><i class="fa fa-check"></i><b>3.0.2</b> 1.2 Extract Cortical Region</a></li>
+<li class="chapter" data-level="3.1" data-path="integration-deconvolution-using-single-cell-data.html"><a href="integration-deconvolution-using-single-cell-data.html#anchor-based-scrna-seq-integration"><i class="fa fa-check"></i><b>3.1</b> 2 Anchor Based scRNA-Seq integration</a>
+<ul>
+<li class="chapter" data-level="3.1.1" data-path="integration-deconvolution-using-single-cell-data.html"><a href="integration-deconvolution-using-single-cell-data.html#find-and-transfer-labels"><i class="fa fa-check"></i><b>3.1.1</b> 2.2 Find and Transfer labels</a></li>
+<li class="chapter" data-level="3.1.2" data-path="integration-deconvolution-using-single-cell-data.html"><a href="integration-deconvolution-using-single-cell-data.html#visualise-specific-cell-types"><i class="fa fa-check"></i><b>3.1.2</b> 2.3 Visualise specific cell types</a></li>
+<li class="chapter" data-level="3.1.3" data-path="integration-deconvolution-using-single-cell-data.html"><a href="integration-deconvolution-using-single-cell-data.html#find-spatially-variable-cell-types"><i class="fa fa-check"></i><b>3.1.3</b> 2.4 Find Spatially Variable Cell types</a></li>
+</ul></li>
+<li class="chapter" data-level="3.2" data-path="integration-deconvolution-using-single-cell-data.html"><a href="integration-deconvolution-using-single-cell-data.html#spatial-deconvolution-using-rctd-robust-cell-type-decomposition"><i class="fa fa-check"></i><b>3.2</b> 3 Spatial deconvolution using RCTD (Robust Cell Type Decomposition)</a>
+<ul>
+<li class="chapter" data-level="3.2.1" data-path="integration-deconvolution-using-single-cell-data.html"><a href="integration-deconvolution-using-single-cell-data.html#run-rctd"><i class="fa fa-check"></i><b>3.2.1</b> 3.1 Run RCTD</a></li>
+<li class="chapter" data-level="3.2.2" data-path="integration-deconvolution-using-single-cell-data.html"><a href="integration-deconvolution-using-single-cell-data.html#plot-the-rctd-annotations."><i class="fa fa-check"></i><b>3.2.2</b> 3.2 Plot the RCTD annotations.</a></li>
+<li class="chapter" data-level="3.2.3" data-path="integration-deconvolution-using-single-cell-data.html"><a href="integration-deconvolution-using-single-cell-data.html#session-info"><i class="fa fa-check"></i><b>3.2.3</b> Session Info</a></li>
+</ul></li>
+</ul></li>
+<li class="divider"></li>
+<li><a href="https://bookdown.org" target="blank">Published with bookdown</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Spatial Transcriptomics Workflow</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="within-slice-spatial-analysis" class="section level1 hasAnchor" number="2">
+<h1><span class="header-section-number">Chapter 2</span> Within-Slice Spatial Analysis<a href="within-slice-spatial-analysis.html#within-slice-spatial-analysis" class="anchor-section" aria-label="Anchor link to header"></a></h1>
+<div class="sourceCode" id="cb62"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb62-1"><a href="within-slice-spatial-analysis.html#cb62-1" tabindex="-1"></a><span class="co"># Install packages if not already installed</span></span>
+<span id="cb62-2"><a href="within-slice-spatial-analysis.html#cb62-2" tabindex="-1"></a><span class="co"># install.packages(c(&quot;Seurat&quot;, &quot;Matrix&quot;, &quot;ggplot2&quot;, &quot;viridis&quot;, &quot;patchwork&quot;, &quot;dplyr&quot;))</span></span>
+<span id="cb62-3"><a href="within-slice-spatial-analysis.html#cb62-3" tabindex="-1"></a><span class="co"># install.packages(c(&quot;sp&quot;, &quot;spdep&quot;, &quot;spatstat&quot;, &quot;pheatmap&quot;, &quot;sctransform&quot;))</span></span>
+<span id="cb62-4"><a href="within-slice-spatial-analysis.html#cb62-4" tabindex="-1"></a><span class="co"># SeuratData::InstallData(&quot;stxBrain.SeuratData&quot;)</span></span>
+<span id="cb62-5"><a href="within-slice-spatial-analysis.html#cb62-5" tabindex="-1"></a></span>
+<span id="cb62-6"><a href="within-slice-spatial-analysis.html#cb62-6" tabindex="-1"></a><span class="co"># devtools::install_github(&#39;satijalab/seurat-data&#39;)</span></span>
+<span id="cb62-7"><a href="within-slice-spatial-analysis.html#cb62-7" tabindex="-1"></a></span>
+<span id="cb62-8"><a href="within-slice-spatial-analysis.html#cb62-8" tabindex="-1"></a><span class="co"># Load essential libraries</span></span>
+<span id="cb62-9"><a href="within-slice-spatial-analysis.html#cb62-9" tabindex="-1"></a><span class="fu">library</span>(Seurat)        <span class="co"># v5.3.1 - main spatial analysis package</span></span>
+<span id="cb62-10"><a href="within-slice-spatial-analysis.html#cb62-10" tabindex="-1"></a><span class="fu">library</span>(ggplot2)       <span class="co"># for visualization</span></span>
+<span id="cb62-11"><a href="within-slice-spatial-analysis.html#cb62-11" tabindex="-1"></a><span class="fu">library</span>(dplyr)         <span class="co"># for data manipulation</span></span>
+<span id="cb62-12"><a href="within-slice-spatial-analysis.html#cb62-12" tabindex="-1"></a><span class="fu">library</span>(Matrix)        <span class="co"># for sparse matrices</span></span>
+<span id="cb62-13"><a href="within-slice-spatial-analysis.html#cb62-13" tabindex="-1"></a><span class="fu">library</span>(viridis)       <span class="co"># for color palettes</span></span>
+<span id="cb62-14"><a href="within-slice-spatial-analysis.html#cb62-14" tabindex="-1"></a><span class="fu">library</span>(patchwork)     <span class="co"># for combining plots</span></span>
+<span id="cb62-15"><a href="within-slice-spatial-analysis.html#cb62-15" tabindex="-1"></a><span class="fu">library</span>(spdep)         <span class="co"># for spatial statistics</span></span>
+<span id="cb62-16"><a href="within-slice-spatial-analysis.html#cb62-16" tabindex="-1"></a><span class="fu">library</span>(pheatmap)      <span class="co"># for heatmaps</span></span>
+<span id="cb62-17"><a href="within-slice-spatial-analysis.html#cb62-17" tabindex="-1"></a><span class="fu">library</span>(sctransform)   <span class="co"># for SCTransform normalization</span></span>
+<span id="cb62-18"><a href="within-slice-spatial-analysis.html#cb62-18" tabindex="-1"></a><span class="fu">library</span>(future)        <span class="co"># for parallel processing</span></span>
+<span id="cb62-19"><a href="within-slice-spatial-analysis.html#cb62-19" tabindex="-1"></a><span class="fu">library</span>(knitr)         <span class="co"># for visualising tables</span></span>
+<span id="cb62-20"><a href="within-slice-spatial-analysis.html#cb62-20" tabindex="-1"></a></span>
+<span id="cb62-21"><a href="within-slice-spatial-analysis.html#cb62-21" tabindex="-1"></a><span class="co"># Set up parallel processing for faster computation</span></span>
+<span id="cb62-22"><a href="within-slice-spatial-analysis.html#cb62-22" tabindex="-1"></a><span class="fu">plan</span>(<span class="st">&quot;multisession&quot;</span>, <span class="at">workers =</span> <span class="dv">4</span>)</span>
+<span id="cb62-23"><a href="within-slice-spatial-analysis.html#cb62-23" tabindex="-1"></a></span>
+<span id="cb62-24"><a href="within-slice-spatial-analysis.html#cb62-24" tabindex="-1"></a><span class="co"># Increase the memory limit for parallel processing</span></span>
+<span id="cb62-25"><a href="within-slice-spatial-analysis.html#cb62-25" tabindex="-1"></a><span class="fu">options</span>(<span class="at">future.globals.maxSize =</span> <span class="dv">8000</span> <span class="sc">*</span> <span class="dv">1024</span><span class="sc">^</span><span class="dv">2</span>)  <span class="co"># Set to 4GB</span></span>
+<span id="cb62-26"><a href="within-slice-spatial-analysis.html#cb62-26" tabindex="-1"></a></span>
+<span id="cb62-27"><a href="within-slice-spatial-analysis.html#cb62-27" tabindex="-1"></a><span class="co"># Set seed for reproducibility</span></span>
+<span id="cb62-28"><a href="within-slice-spatial-analysis.html#cb62-28" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb63"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb63-1"><a href="within-slice-spatial-analysis.html#cb63-1" tabindex="-1"></a>seurat_obj <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;cache/stxBrain_anterior2.RDS&quot;</span>)</span>
+<span id="cb63-2"><a href="within-slice-spatial-analysis.html#cb63-2" tabindex="-1"></a>seurat_obj <span class="ot">&lt;-</span> <span class="fu">UpdateSeuratObject</span>(seurat_obj)</span></code></pre></div>
+<p>This chapter starts from the SCTransform-normalized and clustered object produced by the quality-control chapter.</p>
+<div id="gene-expression-patterns" class="section level2 hasAnchor" number="2.1">
+<h2><span class="header-section-number">2.1</span> 1 Gene Expression Patterns<a href="within-slice-spatial-analysis.html#gene-expression-patterns" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<div id="spatial-expression-of-top-expressed-brain-markers" class="section level3 hasAnchor" number="2.1.1">
+<h3><span class="header-section-number">2.1.1</span> 1.1 Spatial Expression of Top Expressed Brain Markers<a href="within-slice-spatial-analysis.html#spatial-expression-of-top-expressed-brain-markers" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p><strong>neuronal markers:</strong> Snap25, Rbfox3, Tubb3, Camk2a, Nrgn, Syp, Syn1</p>
+<p><strong>excitatory_genes:</strong> Slc17a7, Slc17a6, Camk2a, Gria1, Gria2</p>
+<p><strong>inhibitory_genes:</strong> Gad1, Gad2, Slc6a1, Pvalb, Sst, Vip</p>
+<p><strong>myelin_genes:</strong> Mbp, Plp1, Mog, Olig2, Olig1</p>
+</div>
+<div id="select-top-genes" class="section level3 hasAnchor" number="2.1.2">
+<h3><span class="header-section-number">2.1.2</span> 1.2 Select top Genes<a href="within-slice-spatial-analysis.html#select-top-genes" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>From each category above we select a gene with the highest expression
+across spots. If none found we fallback to top expressed genes in the
+slice.</p>
+<div class="sourceCode" id="cb64"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb64-1"><a href="within-slice-spatial-analysis.html#cb64-1" tabindex="-1"></a><span class="co"># Get all available genes</span></span>
+<span id="cb64-2"><a href="within-slice-spatial-analysis.html#cb64-2" tabindex="-1"></a>all_genes <span class="ot">&lt;-</span> <span class="fu">rownames</span>(seurat_obj)</span>
+<span id="cb64-3"><a href="within-slice-spatial-analysis.html#cb64-3" tabindex="-1"></a></span>
+<span id="cb64-4"><a href="within-slice-spatial-analysis.html#cb64-4" tabindex="-1"></a><span class="co"># These are genes known to have distinct spatial expression in brain tissue</span></span>
+<span id="cb64-5"><a href="within-slice-spatial-analysis.html#cb64-5" tabindex="-1"></a><span class="co"># Look for key brain marker genes</span></span>
+<span id="cb64-6"><a href="within-slice-spatial-analysis.html#cb64-6" tabindex="-1"></a>neuronal_genes <span class="ot">&lt;-</span> <span class="fu">grep</span>(<span class="st">&quot;^(Snap25|Rbfox3|Tubb3|Camk2a|Nrgn|Syp|Syn1)&quot;</span>, all_genes, <span class="at">value =</span> <span class="cn">TRUE</span>, <span class="at">ignore.case =</span> T)</span>
+<span id="cb64-7"><a href="within-slice-spatial-analysis.html#cb64-7" tabindex="-1"></a>excitatory_genes <span class="ot">&lt;-</span> <span class="fu">grep</span>(<span class="st">&quot;^(Slc17a7|Slc17a6|Camk2a|Gria1|Gria2)&quot;</span>, all_genes, <span class="at">value =</span> <span class="cn">TRUE</span>, <span class="at">ignore.case =</span> T)</span>
+<span id="cb64-8"><a href="within-slice-spatial-analysis.html#cb64-8" tabindex="-1"></a>inhibitory_genes <span class="ot">&lt;-</span> <span class="fu">grep</span>(<span class="st">&quot;^(Gad1|Gad2|Slc6a1|Pvalb|Sst|Vip)&quot;</span>, all_genes, <span class="at">value =</span> <span class="cn">TRUE</span>, <span class="at">ignore.case =</span> T)</span>
+<span id="cb64-9"><a href="within-slice-spatial-analysis.html#cb64-9" tabindex="-1"></a>myelin_genes <span class="ot">&lt;-</span> <span class="fu">grep</span>(<span class="st">&quot;^(Mbp|Plp1|Mog|Olig2|Olig1)&quot;</span>, all_genes, <span class="at">value =</span> <span class="cn">TRUE</span>, <span class="at">ignore.case =</span> T)</span>
+<span id="cb64-10"><a href="within-slice-spatial-analysis.html#cb64-10" tabindex="-1"></a>astrocyte_genes <span class="ot">&lt;-</span> <span class="fu">grep</span>(<span class="st">&quot;^(Gfap|Aqp4|Slc1a3|Slc1a2|Aldh1l1)&quot;</span>, all_genes, <span class="at">value =</span> <span class="cn">TRUE</span>, <span class="at">ignore.case =</span> T)</span>
+<span id="cb64-11"><a href="within-slice-spatial-analysis.html#cb64-11" tabindex="-1"></a>microglia_genes <span class="ot">&lt;-</span> <span class="fu">grep</span>(<span class="st">&quot;^(Cx3cr1|Iba1|Aif1|Tmem119|P2ry12)&quot;</span>, all_genes, <span class="at">value =</span> <span class="cn">TRUE</span>, <span class="at">ignore.case =</span> T)</span>
+<span id="cb64-12"><a href="within-slice-spatial-analysis.html#cb64-12" tabindex="-1"></a></span>
+<span id="cb64-13"><a href="within-slice-spatial-analysis.html#cb64-13" tabindex="-1"></a><span class="co"># Function to select best available gene from a list</span></span>
+<span id="cb64-14"><a href="within-slice-spatial-analysis.html#cb64-14" tabindex="-1"></a>select_best_gene <span class="ot">&lt;-</span> <span class="cf">function</span>(gene_list, seurat_obj) {</span>
+<span id="cb64-15"><a href="within-slice-spatial-analysis.html#cb64-15" tabindex="-1"></a>  <span class="cf">if</span>(<span class="fu">length</span>(gene_list) <span class="sc">==</span> <span class="dv">0</span>) <span class="fu">return</span>(<span class="cn">NULL</span>)</span>
+<span id="cb64-16"><a href="within-slice-spatial-analysis.html#cb64-16" tabindex="-1"></a>  </span>
+<span id="cb64-17"><a href="within-slice-spatial-analysis.html#cb64-17" tabindex="-1"></a>  <span class="co"># Get expression levels for all genes in the list</span></span>
+<span id="cb64-18"><a href="within-slice-spatial-analysis.html#cb64-18" tabindex="-1"></a>  expr_data <span class="ot">&lt;-</span> <span class="fu">GetAssayData</span>(seurat_obj, <span class="at">assay =</span> <span class="st">&quot;SCT&quot;</span>, <span class="at">layer =</span> <span class="st">&quot;data&quot;</span>)</span>
+<span id="cb64-19"><a href="within-slice-spatial-analysis.html#cb64-19" tabindex="-1"></a>  available_genes <span class="ot">&lt;-</span> gene_list[gene_list <span class="sc">%in%</span> <span class="fu">rownames</span>(expr_data)]</span>
+<span id="cb64-20"><a href="within-slice-spatial-analysis.html#cb64-20" tabindex="-1"></a>  </span>
+<span id="cb64-21"><a href="within-slice-spatial-analysis.html#cb64-21" tabindex="-1"></a>  <span class="cf">if</span>(<span class="fu">length</span>(available_genes) <span class="sc">==</span> <span class="dv">0</span>) <span class="fu">return</span>(<span class="cn">NULL</span>)</span>
+<span id="cb64-22"><a href="within-slice-spatial-analysis.html#cb64-22" tabindex="-1"></a>  </span>
+<span id="cb64-23"><a href="within-slice-spatial-analysis.html#cb64-23" tabindex="-1"></a>  <span class="co"># Calculate mean expression for each gene</span></span>
+<span id="cb64-24"><a href="within-slice-spatial-analysis.html#cb64-24" tabindex="-1"></a>  mean_expr <span class="ot">&lt;-</span> <span class="fu">sapply</span>(available_genes, <span class="cf">function</span>(g) <span class="fu">mean</span>(expr_data[g, ]))</span>
+<span id="cb64-25"><a href="within-slice-spatial-analysis.html#cb64-25" tabindex="-1"></a>  </span>
+<span id="cb64-26"><a href="within-slice-spatial-analysis.html#cb64-26" tabindex="-1"></a>  <span class="co"># Select gene with highest mean expression</span></span>
+<span id="cb64-27"><a href="within-slice-spatial-analysis.html#cb64-27" tabindex="-1"></a>  best_gene <span class="ot">&lt;-</span> <span class="fu">names</span>(<span class="fu">sort</span>(mean_expr, <span class="at">decreasing =</span> <span class="cn">TRUE</span>))[<span class="dv">1</span>]</span>
+<span id="cb64-28"><a href="within-slice-spatial-analysis.html#cb64-28" tabindex="-1"></a>  <span class="fu">return</span>(best_gene)</span>
+<span id="cb64-29"><a href="within-slice-spatial-analysis.html#cb64-29" tabindex="-1"></a>}</span>
+<span id="cb64-30"><a href="within-slice-spatial-analysis.html#cb64-30" tabindex="-1"></a></span>
+<span id="cb64-31"><a href="within-slice-spatial-analysis.html#cb64-31" tabindex="-1"></a><span class="co"># Select representative genes for different brain cell types/regions</span></span>
+<span id="cb64-32"><a href="within-slice-spatial-analysis.html#cb64-32" tabindex="-1"></a>selected_genes <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb64-33"><a href="within-slice-spatial-analysis.html#cb64-33" tabindex="-1"></a>  <span class="at">neuronal =</span> <span class="fu">select_best_gene</span>(neuronal_genes, seurat_obj),</span>
+<span id="cb64-34"><a href="within-slice-spatial-analysis.html#cb64-34" tabindex="-1"></a>  <span class="at">excitatory =</span> <span class="fu">select_best_gene</span>(excitatory_genes, seurat_obj),</span>
+<span id="cb64-35"><a href="within-slice-spatial-analysis.html#cb64-35" tabindex="-1"></a>  <span class="at">inhibitory =</span> <span class="fu">select_best_gene</span>(inhibitory_genes, seurat_obj),</span>
+<span id="cb64-36"><a href="within-slice-spatial-analysis.html#cb64-36" tabindex="-1"></a>  <span class="at">oligodendrocyte =</span> <span class="fu">select_best_gene</span>(myelin_genes, seurat_obj)</span>
+<span id="cb64-37"><a href="within-slice-spatial-analysis.html#cb64-37" tabindex="-1"></a>)</span>
+<span id="cb64-38"><a href="within-slice-spatial-analysis.html#cb64-38" tabindex="-1"></a></span>
+<span id="cb64-39"><a href="within-slice-spatial-analysis.html#cb64-39" tabindex="-1"></a><span class="co"># Remove NULL entries</span></span>
+<span id="cb64-40"><a href="within-slice-spatial-analysis.html#cb64-40" tabindex="-1"></a>selected_genes <span class="ot">&lt;-</span> selected_genes[<span class="sc">!</span><span class="fu">sapply</span>(selected_genes, is.null)]</span>
+<span id="cb64-41"><a href="within-slice-spatial-analysis.html#cb64-41" tabindex="-1"></a></span>
+<span id="cb64-42"><a href="within-slice-spatial-analysis.html#cb64-42" tabindex="-1"></a><span class="co"># If we couldn&#39;t find specific brain genes, use top variable features</span></span>
+<span id="cb64-43"><a href="within-slice-spatial-analysis.html#cb64-43" tabindex="-1"></a><span class="cf">if</span>( <span class="fu">length</span>(selected_genes) <span class="sc">&lt;</span> <span class="dv">4</span>) {</span>
+<span id="cb64-44"><a href="within-slice-spatial-analysis.html#cb64-44" tabindex="-1"></a>  <span class="fu">print</span>(<span class="st">&quot;Using top variable features as some brain-specific genes were not found...&quot;</span>)</span>
+<span id="cb64-45"><a href="within-slice-spatial-analysis.html#cb64-45" tabindex="-1"></a>  top_var_genes <span class="ot">&lt;-</span> <span class="fu">VariableFeatures</span>(seurat_obj)[<span class="dv">1</span><span class="sc">:</span><span class="dv">8</span>]</span>
+<span id="cb64-46"><a href="within-slice-spatial-analysis.html#cb64-46" tabindex="-1"></a>  </span>
+<span id="cb64-47"><a href="within-slice-spatial-analysis.html#cb64-47" tabindex="-1"></a>  <span class="co"># Add additional genes to reach 4 total</span></span>
+<span id="cb64-48"><a href="within-slice-spatial-analysis.html#cb64-48" tabindex="-1"></a>  additional_genes <span class="ot">&lt;-</span> top_var_genes[<span class="sc">!</span>top_var_genes <span class="sc">%in%</span> <span class="fu">unlist</span>(selected_genes)]</span>
+<span id="cb64-49"><a href="within-slice-spatial-analysis.html#cb64-49" tabindex="-1"></a>  </span>
+<span id="cb64-50"><a href="within-slice-spatial-analysis.html#cb64-50" tabindex="-1"></a>  <span class="cf">if</span>(<span class="fu">length</span>(selected_genes) <span class="sc">&lt;</span> <span class="dv">4</span>) {</span>
+<span id="cb64-51"><a href="within-slice-spatial-analysis.html#cb64-51" tabindex="-1"></a>    remaining_needed <span class="ot">&lt;-</span> <span class="dv">4</span> <span class="sc">-</span> <span class="fu">length</span>(selected_genes)</span>
+<span id="cb64-52"><a href="within-slice-spatial-analysis.html#cb64-52" tabindex="-1"></a>    <span class="cf">for</span>(i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>remaining_needed) {</span>
+<span id="cb64-53"><a href="within-slice-spatial-analysis.html#cb64-53" tabindex="-1"></a>      <span class="cf">if</span>(i <span class="sc">&lt;=</span> <span class="fu">length</span>(additional_genes)) {</span>
+<span id="cb64-54"><a href="within-slice-spatial-analysis.html#cb64-54" tabindex="-1"></a>        selected_genes[[<span class="fu">paste0</span>(<span class="st">&quot;variable_&quot;</span>, i)]] <span class="ot">&lt;-</span> additional_genes[i]</span>
+<span id="cb64-55"><a href="within-slice-spatial-analysis.html#cb64-55" tabindex="-1"></a>      }</span>
+<span id="cb64-56"><a href="within-slice-spatial-analysis.html#cb64-56" tabindex="-1"></a>    }</span>
+<span id="cb64-57"><a href="within-slice-spatial-analysis.html#cb64-57" tabindex="-1"></a>  }</span>
+<span id="cb64-58"><a href="within-slice-spatial-analysis.html#cb64-58" tabindex="-1"></a>}</span>
+<span id="cb64-59"><a href="within-slice-spatial-analysis.html#cb64-59" tabindex="-1"></a></span>
+<span id="cb64-60"><a href="within-slice-spatial-analysis.html#cb64-60" tabindex="-1"></a><span class="co"># Display selected genes</span></span>
+<span id="cb64-61"><a href="within-slice-spatial-analysis.html#cb64-61" tabindex="-1"></a>selectGeneTable <span class="ot">&lt;-</span> <span class="fu">data.frame</span>()</span>
+<span id="cb64-62"><a href="within-slice-spatial-analysis.html#cb64-62" tabindex="-1"></a><span class="cf">for</span>(i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(selected_genes)) {</span>
+<span id="cb64-63"><a href="within-slice-spatial-analysis.html#cb64-63" tabindex="-1"></a>  gene_name <span class="ot">&lt;-</span> selected_genes[[i]]</span>
+<span id="cb64-64"><a href="within-slice-spatial-analysis.html#cb64-64" tabindex="-1"></a>  gene_type <span class="ot">&lt;-</span> <span class="fu">names</span>(selected_genes)[i]</span>
+<span id="cb64-65"><a href="within-slice-spatial-analysis.html#cb64-65" tabindex="-1"></a>  </span>
+<span id="cb64-66"><a href="within-slice-spatial-analysis.html#cb64-66" tabindex="-1"></a>  <span class="co"># Get expression statistics</span></span>
+<span id="cb64-67"><a href="within-slice-spatial-analysis.html#cb64-67" tabindex="-1"></a>  expr_data <span class="ot">&lt;-</span> <span class="fu">GetAssayData</span>(seurat_obj, <span class="at">assay =</span> <span class="st">&quot;SCT&quot;</span>, <span class="at">layer =</span> <span class="st">&quot;data&quot;</span>)</span>
+<span id="cb64-68"><a href="within-slice-spatial-analysis.html#cb64-68" tabindex="-1"></a>  gene_expr <span class="ot">&lt;-</span> expr_data[gene_name, ]</span>
+<span id="cb64-69"><a href="within-slice-spatial-analysis.html#cb64-69" tabindex="-1"></a>  mean_expr <span class="ot">&lt;-</span> <span class="fu">round</span>(<span class="fu">mean</span>(gene_expr), <span class="dv">3</span>)</span>
+<span id="cb64-70"><a href="within-slice-spatial-analysis.html#cb64-70" tabindex="-1"></a>  pct_expressing <span class="ot">&lt;-</span> <span class="fu">round</span>(<span class="dv">100</span> <span class="sc">*</span> <span class="fu">sum</span>(gene_expr <span class="sc">&gt;</span> <span class="dv">0</span>) <span class="sc">/</span> <span class="fu">length</span>(gene_expr), <span class="dv">1</span>)</span>
+<span id="cb64-71"><a href="within-slice-spatial-analysis.html#cb64-71" tabindex="-1"></a>  </span>
+<span id="cb64-72"><a href="within-slice-spatial-analysis.html#cb64-72" tabindex="-1"></a>  tmp <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">Type=</span>gene_type, <span class="at">Name=</span>gene_name, <span class="st">`</span><span class="at">Mean Expr</span><span class="st">`</span><span class="ot">=</span>mean_expr, <span class="st">`</span><span class="at">% expressing</span><span class="st">`</span><span class="ot">=</span><span class="fu">paste0</span>(pct_expressing, <span class="st">&quot;%&quot;</span>), <span class="at">check.names =</span> F )</span>
+<span id="cb64-73"><a href="within-slice-spatial-analysis.html#cb64-73" tabindex="-1"></a>  selectGeneTable <span class="ot">&lt;-</span> <span class="fu">rbind</span>(selectGeneTable, tmp)</span>
+<span id="cb64-74"><a href="within-slice-spatial-analysis.html#cb64-74" tabindex="-1"></a>}</span>
+<span id="cb64-75"><a href="within-slice-spatial-analysis.html#cb64-75" tabindex="-1"></a>selectGeneTable <span class="sc">%&gt;%</span> knitr<span class="sc">::</span><span class="fu">kable</span>()</span></code></pre></div>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Type</th>
+<th align="left">Name</th>
+<th align="right">Mean Expr</th>
+<th align="left">% expressing</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">neuronal</td>
+<td align="left">Snap25</td>
+<td align="right">3.525</td>
+<td align="left">100%</td>
+</tr>
+<tr class="even">
+<td align="left">excitatory</td>
+<td align="left">Camk2a</td>
+<td align="right">2.081</td>
+<td align="left">98.9%</td>
+</tr>
+<tr class="odd">
+<td align="left">inhibitory</td>
+<td align="left">Gad1</td>
+<td align="right">1.923</td>
+<td align="left">95.3%</td>
+</tr>
+<tr class="even">
+<td align="left">oligodendrocyte</td>
+<td align="left">Mbp</td>
+<td align="right">3.680</td>
+<td align="left">99.9%</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="visualise-top-expressed-genes" class="section level3 hasAnchor" number="2.1.3">
+<h3><span class="header-section-number">2.1.3</span> 1.3 Visualise Top Expressed Genes<a href="within-slice-spatial-analysis.html#visualise-top-expressed-genes" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<div class="sourceCode" id="cb65"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb65-1"><a href="within-slice-spatial-analysis.html#cb65-1" tabindex="-1"></a><span class="co"># Function to create spatial gene expression plot using Seurat</span></span>
+<span id="cb65-2"><a href="within-slice-spatial-analysis.html#cb65-2" tabindex="-1"></a>plot_spatial_gene <span class="ot">&lt;-</span> <span class="cf">function</span>(seurat_obj, gene_name, <span class="at">title =</span> <span class="cn">NULL</span>) {</span>
+<span id="cb65-3"><a href="within-slice-spatial-analysis.html#cb65-3" tabindex="-1"></a>  <span class="cf">if</span>(<span class="sc">!</span>gene_name <span class="sc">%in%</span> <span class="fu">rownames</span>(seurat_obj)) {</span>
+<span id="cb65-4"><a href="within-slice-spatial-analysis.html#cb65-4" tabindex="-1"></a>    <span class="fu">print</span>(<span class="fu">paste</span>(<span class="st">&quot;Gene&quot;</span>, gene_name, <span class="st">&quot;not found in dataset&quot;</span>))</span>
+<span id="cb65-5"><a href="within-slice-spatial-analysis.html#cb65-5" tabindex="-1"></a>    <span class="fu">return</span>(<span class="cn">NULL</span>)</span>
+<span id="cb65-6"><a href="within-slice-spatial-analysis.html#cb65-6" tabindex="-1"></a>  }</span>
+<span id="cb65-7"><a href="within-slice-spatial-analysis.html#cb65-7" tabindex="-1"></a>  </span>
+<span id="cb65-8"><a href="within-slice-spatial-analysis.html#cb65-8" tabindex="-1"></a>  <span class="co"># Use Seurat&#39;s SpatialFeaturePlot</span></span>
+<span id="cb65-9"><a href="within-slice-spatial-analysis.html#cb65-9" tabindex="-1"></a>  p <span class="ot">&lt;-</span> <span class="fu">SpatialFeaturePlot</span>(</span>
+<span id="cb65-10"><a href="within-slice-spatial-analysis.html#cb65-10" tabindex="-1"></a>    seurat_obj, </span>
+<span id="cb65-11"><a href="within-slice-spatial-analysis.html#cb65-11" tabindex="-1"></a>    <span class="at">features =</span> gene_name,</span>
+<span id="cb65-12"><a href="within-slice-spatial-analysis.html#cb65-12" tabindex="-1"></a>    <span class="at">pt.size.factor =</span> <span class="fl">1.6</span>,        <span class="co"># Adjust spot size</span></span>
+<span id="cb65-13"><a href="within-slice-spatial-analysis.html#cb65-13" tabindex="-1"></a>    <span class="at">alpha =</span> <span class="fu">c</span>(<span class="fl">0.1</span>, <span class="dv">1</span>)            <span class="co"># Transparency range</span></span>
+<span id="cb65-14"><a href="within-slice-spatial-analysis.html#cb65-14" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb65-15"><a href="within-slice-spatial-analysis.html#cb65-15" tabindex="-1"></a>  <span class="fu">scale_fill_viridis_c</span>(<span class="at">option =</span> <span class="st">&quot;magma&quot;</span>) <span class="sc">+</span>  <span class="co"># Use magma color palette</span></span>
+<span id="cb65-16"><a href="within-slice-spatial-analysis.html#cb65-16" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb65-17"><a href="within-slice-spatial-analysis.html#cb65-17" tabindex="-1"></a>    <span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">12</span>),</span>
+<span id="cb65-18"><a href="within-slice-spatial-analysis.html#cb65-18" tabindex="-1"></a>    <span class="at">legend.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">8</span>),</span>
+<span id="cb65-19"><a href="within-slice-spatial-analysis.html#cb65-19" tabindex="-1"></a>    <span class="at">legend.title =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">9</span>)</span>
+<span id="cb65-20"><a href="within-slice-spatial-analysis.html#cb65-20" tabindex="-1"></a>  )</span>
+<span id="cb65-21"><a href="within-slice-spatial-analysis.html#cb65-21" tabindex="-1"></a>  </span>
+<span id="cb65-22"><a href="within-slice-spatial-analysis.html#cb65-22" tabindex="-1"></a>  <span class="co"># Add custom title if provided</span></span>
+<span id="cb65-23"><a href="within-slice-spatial-analysis.html#cb65-23" tabindex="-1"></a>  <span class="cf">if</span>(<span class="sc">!</span><span class="fu">is.null</span>(title)) {</span>
+<span id="cb65-24"><a href="within-slice-spatial-analysis.html#cb65-24" tabindex="-1"></a>    p <span class="ot">&lt;-</span> p <span class="sc">+</span> <span class="fu">ggtitle</span>(<span class="fu">paste</span>(title, <span class="st">&quot;-&quot;</span>, gene_name))</span>
+<span id="cb65-25"><a href="within-slice-spatial-analysis.html#cb65-25" tabindex="-1"></a>  }</span>
+<span id="cb65-26"><a href="within-slice-spatial-analysis.html#cb65-26" tabindex="-1"></a>  </span>
+<span id="cb65-27"><a href="within-slice-spatial-analysis.html#cb65-27" tabindex="-1"></a>  <span class="fu">return</span>(p)</span>
+<span id="cb65-28"><a href="within-slice-spatial-analysis.html#cb65-28" tabindex="-1"></a>}</span>
+<span id="cb65-29"><a href="within-slice-spatial-analysis.html#cb65-29" tabindex="-1"></a></span>
+<span id="cb65-30"><a href="within-slice-spatial-analysis.html#cb65-30" tabindex="-1"></a><span class="co"># Create individual plots for selected genes</span></span>
+<span id="cb65-31"><a href="within-slice-spatial-analysis.html#cb65-31" tabindex="-1"></a>plot_list <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb65-32"><a href="within-slice-spatial-analysis.html#cb65-32" tabindex="-1"></a>plot_titles <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;Neuronal Marker&quot;</span>, <span class="st">&quot;Excitatory Marker&quot;</span>, <span class="st">&quot;Inhibitory Marker&quot;</span>, <span class="st">&quot;Oligodendrocyte Marker&quot;</span>)</span>
+<span id="cb65-33"><a href="within-slice-spatial-analysis.html#cb65-33" tabindex="-1"></a></span>
+<span id="cb65-34"><a href="within-slice-spatial-analysis.html#cb65-34" tabindex="-1"></a><span class="cf">for</span>(i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">min</span>(<span class="dv">4</span>, <span class="fu">length</span>(selected_genes))) {</span>
+<span id="cb65-35"><a href="within-slice-spatial-analysis.html#cb65-35" tabindex="-1"></a>  gene_name <span class="ot">&lt;-</span> selected_genes[[i]]</span>
+<span id="cb65-36"><a href="within-slice-spatial-analysis.html#cb65-36" tabindex="-1"></a>  title <span class="ot">&lt;-</span> <span class="cf">if</span>(i <span class="sc">&lt;=</span> <span class="fu">length</span>(plot_titles)) plot_titles[i] <span class="cf">else</span> <span class="fu">paste</span>(<span class="st">&quot;Gene&quot;</span>, i)</span>
+<span id="cb65-37"><a href="within-slice-spatial-analysis.html#cb65-37" tabindex="-1"></a>  </span>
+<span id="cb65-38"><a href="within-slice-spatial-analysis.html#cb65-38" tabindex="-1"></a>  plot_obj <span class="ot">&lt;-</span> <span class="fu">plot_spatial_gene</span>(seurat_obj, gene_name, title)</span>
+<span id="cb65-39"><a href="within-slice-spatial-analysis.html#cb65-39" tabindex="-1"></a>  <span class="cf">if</span>(<span class="sc">!</span><span class="fu">is.null</span>(plot_obj)) {</span>
+<span id="cb65-40"><a href="within-slice-spatial-analysis.html#cb65-40" tabindex="-1"></a>    plot_list[[i]] <span class="ot">&lt;-</span> plot_obj</span>
+<span id="cb65-41"><a href="within-slice-spatial-analysis.html#cb65-41" tabindex="-1"></a>  }</span>
+<span id="cb65-42"><a href="within-slice-spatial-analysis.html#cb65-42" tabindex="-1"></a>}</span>
+<span id="cb65-43"><a href="within-slice-spatial-analysis.html#cb65-43" tabindex="-1"></a></span>
+<span id="cb65-44"><a href="within-slice-spatial-analysis.html#cb65-44" tabindex="-1"></a><span class="co"># Remove NULL plots</span></span>
+<span id="cb65-45"><a href="within-slice-spatial-analysis.html#cb65-45" tabindex="-1"></a>plot_list <span class="ot">&lt;-</span> plot_list[<span class="sc">!</span><span class="fu">sapply</span>(plot_list, is.null)]</span>
+<span id="cb65-46"><a href="within-slice-spatial-analysis.html#cb65-46" tabindex="-1"></a></span>
+<span id="cb65-47"><a href="within-slice-spatial-analysis.html#cb65-47" tabindex="-1"></a><span class="co"># Create combined plot using patchwork</span></span>
+<span id="cb65-48"><a href="within-slice-spatial-analysis.html#cb65-48" tabindex="-1"></a><span class="cf">if</span>(<span class="fu">length</span>(plot_list) <span class="sc">&gt;=</span> <span class="dv">4</span>) {</span>
+<span id="cb65-49"><a href="within-slice-spatial-analysis.html#cb65-49" tabindex="-1"></a>  gene_plots <span class="ot">&lt;-</span> (plot_list[[<span class="dv">1</span>]] <span class="sc">|</span> plot_list[[<span class="dv">2</span>]]) <span class="sc">/</span> (plot_list[[<span class="dv">3</span>]] <span class="sc">|</span> plot_list[[<span class="dv">4</span>]])</span>
+<span id="cb65-50"><a href="within-slice-spatial-analysis.html#cb65-50" tabindex="-1"></a>} <span class="cf">else</span> <span class="cf">if</span>(<span class="fu">length</span>(plot_list) <span class="sc">==</span> <span class="dv">3</span>) {</span>
+<span id="cb65-51"><a href="within-slice-spatial-analysis.html#cb65-51" tabindex="-1"></a>  gene_plots <span class="ot">&lt;-</span> plot_list[[<span class="dv">1</span>]] <span class="sc">/</span> (plot_list[[<span class="dv">2</span>]] <span class="sc">|</span> plot_list[[<span class="dv">3</span>]])</span>
+<span id="cb65-52"><a href="within-slice-spatial-analysis.html#cb65-52" tabindex="-1"></a>} <span class="cf">else</span> <span class="cf">if</span>(<span class="fu">length</span>(plot_list) <span class="sc">==</span> <span class="dv">2</span>) {</span>
+<span id="cb65-53"><a href="within-slice-spatial-analysis.html#cb65-53" tabindex="-1"></a>  gene_plots <span class="ot">&lt;-</span> plot_list[[<span class="dv">1</span>]] <span class="sc">|</span> plot_list[[<span class="dv">2</span>]]</span>
+<span id="cb65-54"><a href="within-slice-spatial-analysis.html#cb65-54" tabindex="-1"></a>} <span class="cf">else</span> <span class="cf">if</span>(<span class="fu">length</span>(plot_list) <span class="sc">==</span> <span class="dv">1</span>) {</span>
+<span id="cb65-55"><a href="within-slice-spatial-analysis.html#cb65-55" tabindex="-1"></a>  gene_plots <span class="ot">&lt;-</span> plot_list[[<span class="dv">1</span>]]</span>
+<span id="cb65-56"><a href="within-slice-spatial-analysis.html#cb65-56" tabindex="-1"></a>} <span class="cf">else</span> {</span>
+<span id="cb65-57"><a href="within-slice-spatial-analysis.html#cb65-57" tabindex="-1"></a>  <span class="co"># Fallback: use top variable features</span></span>
+<span id="cb65-58"><a href="within-slice-spatial-analysis.html#cb65-58" tabindex="-1"></a>  <span class="fu">print</span>(<span class="st">&quot;Creating plots with top variable features...&quot;</span>)</span>
+<span id="cb65-59"><a href="within-slice-spatial-analysis.html#cb65-59" tabindex="-1"></a>  top_genes <span class="ot">&lt;-</span> <span class="fu">VariableFeatures</span>(seurat_obj)[<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>]</span>
+<span id="cb65-60"><a href="within-slice-spatial-analysis.html#cb65-60" tabindex="-1"></a>  </span>
+<span id="cb65-61"><a href="within-slice-spatial-analysis.html#cb65-61" tabindex="-1"></a>  p1 <span class="ot">&lt;-</span> <span class="fu">plot_spatial_gene</span>(seurat_obj, top_genes[<span class="dv">1</span>], <span class="st">&quot;Variable Gene 1&quot;</span>)</span>
+<span id="cb65-62"><a href="within-slice-spatial-analysis.html#cb65-62" tabindex="-1"></a>  p2 <span class="ot">&lt;-</span> <span class="fu">plot_spatial_gene</span>(seurat_obj, top_genes[<span class="dv">2</span>], <span class="st">&quot;Variable Gene 2&quot;</span>) </span>
+<span id="cb65-63"><a href="within-slice-spatial-analysis.html#cb65-63" tabindex="-1"></a>  p3 <span class="ot">&lt;-</span> <span class="fu">plot_spatial_gene</span>(seurat_obj, top_genes[<span class="dv">3</span>], <span class="st">&quot;Variable Gene 3&quot;</span>)</span>
+<span id="cb65-64"><a href="within-slice-spatial-analysis.html#cb65-64" tabindex="-1"></a>  p4 <span class="ot">&lt;-</span> <span class="fu">plot_spatial_gene</span>(seurat_obj, top_genes[<span class="dv">4</span>], <span class="st">&quot;Variable Gene 4&quot;</span>)</span>
+<span id="cb65-65"><a href="within-slice-spatial-analysis.html#cb65-65" tabindex="-1"></a>  </span>
+<span id="cb65-66"><a href="within-slice-spatial-analysis.html#cb65-66" tabindex="-1"></a>  gene_plots <span class="ot">&lt;-</span> (p1 <span class="sc">|</span> p2) <span class="sc">/</span> (p3 <span class="sc">|</span> p4)</span>
+<span id="cb65-67"><a href="within-slice-spatial-analysis.html#cb65-67" tabindex="-1"></a>}</span>
+<span id="cb65-68"><a href="within-slice-spatial-analysis.html#cb65-68" tabindex="-1"></a></span>
+<span id="cb65-69"><a href="within-slice-spatial-analysis.html#cb65-69" tabindex="-1"></a><span class="fu">print</span>(gene_plots)</span></code></pre></div>
+<p><img src="spatial-transcriptomics-workflow_files/figure-html/gene-patterns-1.png" alt="" width="1152" /></p>
+<p><strong>Interpretation:</strong> Brain tissue shows distinct spatial gene expression
+patterns</p>
+<ul>
+<li>Neuronal markers: Often show layered or regional patterns</li>
+<li>Excitatory markers: Typically enriched in cortical regions</li>
+<li>Oligodendrocyte markers: Often concentrated in white matter regions</li>
+</ul>
+<p>These patterns reflect the anatomical organization of brain tissue</p>
+<hr />
+</div>
+</div>
+<div id="autocorrelation-analysis" class="section level2 hasAnchor" number="2.2">
+<h2><span class="header-section-number">2.2</span> 2. Autocorrelation Analysis<a href="within-slice-spatial-analysis.html#autocorrelation-analysis" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>There are two general ways to perform spatial autocorrelation:</p>
+<ul>
+<li>Statistics that measure the dependence of a feature on spatial
+location.</li>
+<li>Differential expression testing between pre-annotated
+anatomical regions</li>
+</ul>
+<p>Spatial autocorrelation is the degree to which nearby locations have
+similar values.</p>
+<details>
+<summary>
+CLICK HERE for more details
+</summary>
+<p><strong>Why It Matters for Spatial Transcriptomics</strong></p>
+<p><em>Biological significance:</em></p>
+<ul>
+<li>Tissue organization: Cells of the same type cluster together
+spatially</li>
+<li>Morphogen gradients: Signaling molecules create spatial expression
+patterns</li>
+<li>Cell communication: Neighboring cells influence each other’s
+expression</li>
+<li>Anatomical structures: Different tissue regions have distinct
+expression profiles</li>
+</ul>
+<p><em>Quality control:</em></p>
+<ul>
+<li>Technical validation: Spatial patterns suggest data quality</li>
+<li>Noise detection: Random expression patterns may indicate technical
+issues</li>
+<li>Batch effects: Can manifest as spatial artifacts</li>
+</ul>
+<p><strong>Examples in Spatial Biology</strong></p>
+<p><em>Strong positive autocorrelation:</em></p>
+<ul>
+<li>Layer-specific genes in brain cortex</li>
+<li>Zonation markers in liver</li>
+<li>Tumor vs. stroma boundaries</li>
+<li>Developmental gradients</li>
+</ul>
+<p><em>Weak/no autocorrelation:</em></p>
+<ul>
+<li>Housekeeping genes (expressed everywhere)</li>
+<li>Technical noise</li>
+<li>Randomly distributed cell types</li>
+</ul>
+</details>
+<div id="location-based-spatial-auto-correlation" class="section level3 hasAnchor" number="2.2.1">
+<h3><span class="header-section-number">2.2.1</span> 2.1 Location-Based Spatial Auto Correlation<a href="within-slice-spatial-analysis.html#location-based-spatial-auto-correlation" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p><strong>Key Statistic: Moran’s I</strong></p>
+<p>Moran’s I measures <strong>Location-Dependent</strong> spatial autocorrelation by
+using <strong>k nearest neighbor</strong></p>
+<details>
+<summary>
+CLICK HERE for more details
+</summary>
+<p><strong>When To use</strong></p>
+<ul>
+<li>Exploring unknown spatial patterns</li>
+<li>Looking for gradual transitions or gradients</li>
+<li>Want comprehensive discovery of spatial genes</li>
+<li>Have complex tissue architecture without clear boundaries</li>
+</ul>
+<p><em>Formula Concept</em></p>
+<p>Compares observed spatial pattern vs. random spatial
+pattern:</p>
+<ul>
+<li>Calculates similarity between neighboring spots</li>
+<li>Standardizes against what you’d expect by chance</li>
+</ul>
+<p><em>Value Interpretation</em></p>
+<ul>
+<li>+1: Perfect positive autocorrelation (neighbors are identical)</li>
+<li>0: No spatial pattern (random distribution)</li>
+<li>-1: Perfect negative autocorrelation (neighbors are opposite)</li>
+</ul>
+<p><strong>Advantages:</strong></p>
+<ul>
+<li>Unbiased discovery: No prior anatomical knowledge needed</li>
+<li>Continuous patterns: Detects gradients and smooth transitions</li>
+<li>Objective: Data-driven rather than annotation-dependent</li>
+</ul>
+<p><strong>Limitations:</strong></p>
+<ul>
+<li>Complex interpretation: Results may not map to known biology</li>
+<li>Statistical complexity: More sophisticated methods required</li>
+<li>Multiple testing: Many spatial relationships to test</li>
+</ul>
+</details>
+<p><br/></p>
+<p><strong>Practical Range</strong></p>
+<ul>
+<li><p>&gt; +0.3: Strong spatial clustering/similarity</p></li>
+<li><p>0 to +0.3: Moderate spatial pattern</p></li>
+<li><p>&lt; 0: Rare in biology (neighboring spots dissimilar)</p></li>
+</ul>
+<div id="spatial-autocorrelation-of-known-brain-markers" class="section level4 hasAnchor" number="2.2.1.1">
+<h4><span class="header-section-number">2.2.1.1</span> <strong>2.1.1 Spatial Autocorrelation of known brain markers</strong><a href="within-slice-spatial-analysis.html#spatial-autocorrelation-of-known-brain-markers" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>Here we perform the location based Spatial Autocorrelation on the 4 known brain markers with highest
+expression:</p>
+<div class="sourceCode" id="cb66"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb66-1"><a href="within-slice-spatial-analysis.html#cb66-1" tabindex="-1"></a><span class="co">#  Known spatially Expressed genes to test for spatial autocorrelation</span></span>
+<span id="cb66-2"><a href="within-slice-spatial-analysis.html#cb66-2" tabindex="-1"></a>genes_to_test <span class="ot">&lt;-</span> <span class="fu">unlist</span>(selected_genes)</span>
+<span id="cb66-3"><a href="within-slice-spatial-analysis.html#cb66-3" tabindex="-1"></a>genes_to_test <span class="ot">&lt;-</span> <span class="fu">unique</span>(genes_to_test[<span class="sc">!</span><span class="fu">is.null</span>(genes_to_test)])</span>
+<span id="cb66-4"><a href="within-slice-spatial-analysis.html#cb66-4" tabindex="-1"></a></span>
+<span id="cb66-5"><a href="within-slice-spatial-analysis.html#cb66-5" tabindex="-1"></a><span class="co"># Calculate Moran&#39;s I for specific genes</span></span>
+<span id="cb66-6"><a href="within-slice-spatial-analysis.html#cb66-6" tabindex="-1"></a>svg_results <span class="ot">&lt;-</span> <span class="fu">FindSpatiallyVariableFeatures</span>(</span>
+<span id="cb66-7"><a href="within-slice-spatial-analysis.html#cb66-7" tabindex="-1"></a>    seurat_obj</span>
+<span id="cb66-8"><a href="within-slice-spatial-analysis.html#cb66-8" tabindex="-1"></a>    , <span class="at">features =</span> genes_to_test <span class="co"># Genes to test</span></span>
+<span id="cb66-9"><a href="within-slice-spatial-analysis.html#cb66-9" tabindex="-1"></a>    , <span class="at">selection.method =</span> <span class="st">&quot;moransi&quot;</span>           <span class="co"># Selection method</span></span>
+<span id="cb66-10"><a href="within-slice-spatial-analysis.html#cb66-10" tabindex="-1"></a>)</span>
+<span id="cb66-11"><a href="within-slice-spatial-analysis.html#cb66-11" tabindex="-1"></a><span class="co"># Get Moran Statistics</span></span>
+<span id="cb66-12"><a href="within-slice-spatial-analysis.html#cb66-12" tabindex="-1"></a>meta_features <span class="ot">&lt;-</span> svg_results<span class="sc">@</span>assays<span class="sc">$</span>SCT<span class="sc">@</span>meta.features</span>
+<span id="cb66-13"><a href="within-slice-spatial-analysis.html#cb66-13" tabindex="-1"></a></span>
+<span id="cb66-14"><a href="within-slice-spatial-analysis.html#cb66-14" tabindex="-1"></a><span class="co"># Create Table of Moran Statistics</span></span>
+<span id="cb66-15"><a href="within-slice-spatial-analysis.html#cb66-15" tabindex="-1"></a>moran_summary <span class="ot">&lt;-</span> meta_features[genes_to_test, , drop <span class="ot">=</span> <span class="cn">FALSE</span>] <span class="sc">%&gt;%</span> </span>
+<span id="cb66-16"><a href="within-slice-spatial-analysis.html#cb66-16" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb66-17"><a href="within-slice-spatial-analysis.html#cb66-17" tabindex="-1"></a>    <span class="at">Morans_I=</span> <span class="fu">round</span>(MoransI_observed, <span class="dv">4</span>)</span>
+<span id="cb66-18"><a href="within-slice-spatial-analysis.html#cb66-18" tabindex="-1"></a>      , <span class="at">P_Value =</span> <span class="fu">format</span>(MoransI_p.value, <span class="at">scientific =</span> <span class="cn">TRUE</span>, <span class="at">digits =</span> <span class="dv">3</span>)</span>
+<span id="cb66-19"><a href="within-slice-spatial-analysis.html#cb66-19" tabindex="-1"></a>      , <span class="at">Significant =</span> <span class="fu">as.numeric</span>(P_Value) <span class="sc">&lt;</span> <span class="fl">0.05</span></span>
+<span id="cb66-20"><a href="within-slice-spatial-analysis.html#cb66-20" tabindex="-1"></a>      , <span class="at">Spatial_Pattern =</span> <span class="fu">ifelse</span>(Morans_I<span class="sc">&gt;</span> <span class="fl">0.1</span>, <span class="st">&quot;Clustered&quot;</span>, </span>
+<span id="cb66-21"><a href="within-slice-spatial-analysis.html#cb66-21" tabindex="-1"></a>                                 <span class="fu">ifelse</span>(Morans_I <span class="sc">&lt;</span> <span class="sc">-</span><span class="fl">0.1</span>, <span class="st">&quot;Dispersed&quot;</span>, <span class="st">&quot;Random&quot;</span>))</span>
+<span id="cb66-22"><a href="within-slice-spatial-analysis.html#cb66-22" tabindex="-1"></a>    ) <span class="sc">%&gt;%</span> </span>
+<span id="cb66-23"><a href="within-slice-spatial-analysis.html#cb66-23" tabindex="-1"></a>  <span class="fu">select</span>(Morans_I, P_Value, Significant, Spatial_Pattern) <span class="sc">%&gt;%</span> </span>
+<span id="cb66-24"><a href="within-slice-spatial-analysis.html#cb66-24" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(Morans_I))</span>
+<span id="cb66-25"><a href="within-slice-spatial-analysis.html#cb66-25" tabindex="-1"></a></span>
+<span id="cb66-26"><a href="within-slice-spatial-analysis.html#cb66-26" tabindex="-1"></a>moran_summary <span class="sc">%&gt;%</span> </span>
+<span id="cb66-27"><a href="within-slice-spatial-analysis.html#cb66-27" tabindex="-1"></a>    knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">caption=</span><span class="st">&quot;Moran Statistics&quot;</span>)</span></code></pre></div>
+<table>
+<caption><span id="tab:spatial-autocorr">Table 2.1: </span>Moran Statistics</caption>
+<thead>
+<tr class="header">
+<th align="left"></th>
+<th align="right">Morans_I</th>
+<th align="left">P_Value</th>
+<th align="left">Significant</th>
+<th align="left">Spatial_Pattern</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Mbp</td>
+<td align="right">0.5389</td>
+<td align="left">0e+00</td>
+<td align="left">TRUE</td>
+<td align="left">Clustered</td>
+</tr>
+<tr class="even">
+<td align="left">Camk2a</td>
+<td align="right">0.5101</td>
+<td align="left">0e+00</td>
+<td align="left">TRUE</td>
+<td align="left">Clustered</td>
+</tr>
+<tr class="odd">
+<td align="left">Snap25</td>
+<td align="right">0.4695</td>
+<td align="left">0e+00</td>
+<td align="left">TRUE</td>
+<td align="left">Clustered</td>
+</tr>
+<tr class="even">
+<td align="left">Gad1</td>
+<td align="right">0.4615</td>
+<td align="left">0e+00</td>
+<td align="left">TRUE</td>
+<td align="left">Clustered</td>
+</tr>
+</tbody>
+</table>
+<!-- ```{r} -->
+<!-- ## Summary statistics -->
+<!-- data.frame(`Total genes tested`=as.character(round(nrow(moran_summary),1)) -->
+<!--            , `Significantly clustered genes (p < 0.05)`= as.character(sum(moran_summary$Significant)) -->
+<!--            , `Mean Moran's I`=  round(mean(moran_summary$Morans_I), 4) -->
+<!--            , `Max Moran's I`= round(max(moran_summary$Morans_I), 4) -->
+<!--            , `Min Moran's I`= round(min(moran_summary$Morans_I), 4) -->
+<!--            , check.names = F -->
+<!-- ) %>% t() %>% kable(caption="Summary statistics for Moran Statistics") -->
+<!-- ``` -->
+<p><strong>Interpretation</strong>: We see strong spatial patterns in all 4 genes as
+expected (Moran’s I &gt; 0.3)</p>
+<hr />
+</div>
+<div id="spatial-autocorrelation-of-top-5-features-identified-by-morans-i." class="section level4 hasAnchor" number="2.2.1.2">
+<h4><span class="header-section-number">2.2.1.2</span> <strong>2.1.2 Spatial Autocorrelation of top 5 features identified by Moran’s I.</strong><a href="within-slice-spatial-analysis.html#spatial-autocorrelation-of-top-5-features-identified-by-morans-i." class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<div class="sourceCode" id="cb67"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb67-1"><a href="within-slice-spatial-analysis.html#cb67-1" tabindex="-1"></a>seurat_obj <span class="ot">&lt;-</span> <span class="fu">FindSpatiallyVariableFeatures</span>(seurat_obj</span>
+<span id="cb67-2"><a href="within-slice-spatial-analysis.html#cb67-2" tabindex="-1"></a>                                           , <span class="at">assay =</span> <span class="st">&quot;SCT&quot;</span></span>
+<span id="cb67-3"><a href="within-slice-spatial-analysis.html#cb67-3" tabindex="-1"></a>                                           , <span class="at">slot =</span> <span class="st">&quot;scale.data&quot;</span></span>
+<span id="cb67-4"><a href="within-slice-spatial-analysis.html#cb67-4" tabindex="-1"></a>                                           , <span class="at">features =</span> <span class="fu">VariableFeatures</span>(seurat_obj)[<span class="dv">1</span><span class="sc">:</span><span class="dv">1000</span>]</span>
+<span id="cb67-5"><a href="within-slice-spatial-analysis.html#cb67-5" tabindex="-1"></a>                                           , <span class="at">selection.method =</span> <span class="st">&quot;moransi&quot;</span>, <span class="at">x.cuts =</span> <span class="dv">100</span>, <span class="at">y.cuts =</span> <span class="dv">100</span></span>
+<span id="cb67-6"><a href="within-slice-spatial-analysis.html#cb67-6" tabindex="-1"></a>                                           )</span>
+<span id="cb67-7"><a href="within-slice-spatial-analysis.html#cb67-7" tabindex="-1"></a></span>
+<span id="cb67-8"><a href="within-slice-spatial-analysis.html#cb67-8" tabindex="-1"></a>top_spatial <span class="ot">&lt;-</span> <span class="fu">head</span>(<span class="fu">SpatiallyVariableFeatures</span>(seurat_obj, <span class="at">method =</span> <span class="st">&quot;moransi&quot;</span>),<span class="dv">5</span>)</span>
+<span id="cb67-9"><a href="within-slice-spatial-analysis.html#cb67-9" tabindex="-1"></a></span>
+<span id="cb67-10"><a href="within-slice-spatial-analysis.html#cb67-10" tabindex="-1"></a><span class="fu">SpatialFeaturePlot</span>(seurat_obj,                    </span>
+<span id="cb67-11"><a href="within-slice-spatial-analysis.html#cb67-11" tabindex="-1"></a>                   <span class="at">features =</span> top_spatial,                   <span class="co"># Gene name(s) or metadata column(s) to visualize</span></span>
+<span id="cb67-12"><a href="within-slice-spatial-analysis.html#cb67-12" tabindex="-1"></a>                   <span class="at">ncol =</span> <span class="dv">3</span>,                      <span class="co"># Number of columns in plot layout (for multiple features)</span></span>
+<span id="cb67-13"><a href="within-slice-spatial-analysis.html#cb67-13" tabindex="-1"></a>                   <span class="at">alpha =</span> <span class="fu">c</span>(<span class="fl">0.1</span>, <span class="dv">1</span>),             <span class="co"># Transparency: c(min_expression, max_expression)</span></span>
+<span id="cb67-14"><a href="within-slice-spatial-analysis.html#cb67-14" tabindex="-1"></a>                   <span class="at">max.cutoff =</span> <span class="st">&quot;q95&quot;</span>)            <span class="co"># Maximum value cutoff for color scale</span></span></code></pre></div>
+<p><img src="spatial-transcriptomics-workflow_files/figure-html/unnamed-chunk-21-1.png" alt="" width="960" /></p>
+<hr />
+</div>
+</div>
+<div id="differential-expression-between-anatomical-regions" class="section level3 hasAnchor" number="2.2.2">
+<h3><span class="header-section-number">2.2.2</span> 2.2 Differential Expression Between Anatomical Regions<a href="within-slice-spatial-analysis.html#differential-expression-between-anatomical-regions" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>Compare gene expression between predefined tissue regions</p>
+<p><strong>How it works:</strong> - Manual annotation: Researcher defines anatomical
+regions (e.g., cortex vs. white matter) - Region-based grouping: Spots
+assigned to discrete anatomical categories - Standard DE testing: Use
+traditional methods (Wilcoxon, DESeq2, etc.) between regions</p>
+<p><strong>When to use Anatomical Region DE:</strong></p>
+<ul>
+<li>You have clear anatomical knowledge</li>
+<li>Interested in specific region comparisons</li>
+<li>Want interpretable results for known structures</li>
+<li>Have well-defined boundaries in your tissue</li>
+</ul>
+<details>
+<summary>
+CLICK HERE for more details
+</summary>
+<p><strong>Advantages:</strong></p>
+<ul>
+<li>Biologically interpretable: Based on known anatomy</li>
+<li>Statistical power: Uses established DE methods</li>
+<li>Clear comparisons: Discrete region contrasts</li>
+</ul>
+<p><strong>Limitations:</strong></p>
+<ul>
+<li>Requires prior knowledge: Need to know anatomy beforehand</li>
+<li>Discrete boundaries: Misses gradual transitions</li>
+<li>Manual bias: Subjective region definitions</li>
+</ul>
+</details>
+<div id="top-de-markers-for-region-b-vs-region-a" class="section level4 hasAnchor" number="2.2.2.1">
+<h4><span class="header-section-number">2.2.2.1</span> <strong>Top DE Markers for Region B vs Region A</strong><a href="within-slice-spatial-analysis.html#top-de-markers-for-region-b-vs-region-a" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<div class="sourceCode" id="cb68"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb68-1"><a href="within-slice-spatial-analysis.html#cb68-1" tabindex="-1"></a><span class="co"># Example implementation</span></span>
+<span id="cb68-2"><a href="within-slice-spatial-analysis.html#cb68-2" tabindex="-1"></a><span class="co"># Manually annotate regions </span></span>
+<span id="cb68-3"><a href="within-slice-spatial-analysis.html#cb68-3" tabindex="-1"></a><span class="co"># We have 14 clusters, so we will name these Region A to O</span></span>
+<span id="cb68-4"><a href="within-slice-spatial-analysis.html#cb68-4" tabindex="-1"></a>n_clusters <span class="ot">&lt;-</span> <span class="fu">length</span>(<span class="fu">levels</span>(seurat_obj<span class="sc">$</span>seurat_clusters))</span>
+<span id="cb68-5"><a href="within-slice-spatial-analysis.html#cb68-5" tabindex="-1"></a>region_names <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">&quot;Region_&quot;</span>, LETTERS[<span class="dv">1</span><span class="sc">:</span>n_clusters])</span>
+<span id="cb68-6"><a href="within-slice-spatial-analysis.html#cb68-6" tabindex="-1"></a><span class="fu">names</span>(region_names) <span class="ot">&lt;-</span> <span class="fu">levels</span>(seurat_obj<span class="sc">$</span>seurat_clusters)</span>
+<span id="cb68-7"><a href="within-slice-spatial-analysis.html#cb68-7" tabindex="-1"></a>seurat_obj <span class="ot">&lt;-</span> <span class="fu">RenameIdents</span>(seurat_obj, region_names)</span>
+<span id="cb68-8"><a href="within-slice-spatial-analysis.html#cb68-8" tabindex="-1"></a>seurat_obj<span class="sc">$</span>cluster_names <span class="ot">&lt;-</span> <span class="fu">Idents</span>(seurat_obj)</span>
+<span id="cb68-9"><a href="within-slice-spatial-analysis.html#cb68-9" tabindex="-1"></a></span>
+<span id="cb68-10"><a href="within-slice-spatial-analysis.html#cb68-10" tabindex="-1"></a><span class="co"># Standard differential expression</span></span>
+<span id="cb68-11"><a href="within-slice-spatial-analysis.html#cb68-11" tabindex="-1"></a>de_markers <span class="ot">&lt;-</span> <span class="fu">FindMarkers</span>(</span>
+<span id="cb68-12"><a href="within-slice-spatial-analysis.html#cb68-12" tabindex="-1"></a>  seurat_obj,</span>
+<span id="cb68-13"><a href="within-slice-spatial-analysis.html#cb68-13" tabindex="-1"></a>  , <span class="at">assay =</span> <span class="st">&quot;SCT&quot;</span></span>
+<span id="cb68-14"><a href="within-slice-spatial-analysis.html#cb68-14" tabindex="-1"></a>  , <span class="at">test.use =</span> <span class="st">&quot;wilcox&quot;</span>                <span class="co"># Wilcoxon rank sum test (default)  </span></span>
+<span id="cb68-15"><a href="within-slice-spatial-analysis.html#cb68-15" tabindex="-1"></a>  , <span class="at">group.by =</span> <span class="st">&quot;cluster_names&quot;</span></span>
+<span id="cb68-16"><a href="within-slice-spatial-analysis.html#cb68-16" tabindex="-1"></a>  , <span class="at">min.pct =</span> <span class="fl">0.1</span>                      <span class="co"># minimum percentage of spots expressing gene </span></span>
+<span id="cb68-17"><a href="within-slice-spatial-analysis.html#cb68-17" tabindex="-1"></a>  , <span class="at">logfc.threshold =</span> <span class="fl">0.25</span>             <span class="co"># minimum log2 fold change  </span></span>
+<span id="cb68-18"><a href="within-slice-spatial-analysis.html#cb68-18" tabindex="-1"></a>  , <span class="at">ident.1 =</span> <span class="st">&quot;Region_B&quot;</span>                      <span class="co"># first cluster to compare</span></span>
+<span id="cb68-19"><a href="within-slice-spatial-analysis.html#cb68-19" tabindex="-1"></a>  , <span class="at">ident.2 =</span> <span class="st">&quot;Region_A&quot;</span>                      <span class="co"># second cluster to compare</span></span>
+<span id="cb68-20"><a href="within-slice-spatial-analysis.html#cb68-20" tabindex="-1"></a>)</span></code></pre></div>
+<div class="sourceCode" id="cb69"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb69-1"><a href="within-slice-spatial-analysis.html#cb69-1" tabindex="-1"></a>de_markers<span class="sc">$</span>gene <span class="ot">&lt;-</span> <span class="fu">rownames</span>(de_markers)</span>
+<span id="cb69-2"><a href="within-slice-spatial-analysis.html#cb69-2" tabindex="-1"></a>de_markers<span class="sc">$</span>gene <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
+<span id="cb69-3"><a href="within-slice-spatial-analysis.html#cb69-3" tabindex="-1"></a></span>
+<span id="cb69-4"><a href="within-slice-spatial-analysis.html#cb69-4" tabindex="-1"></a>Region_B_up <span class="ot">&lt;-</span> de_markers[de_markers<span class="sc">$</span>avg_log2FC <span class="sc">&gt;</span> <span class="dv">0</span>, ]</span>
+<span id="cb69-5"><a href="within-slice-spatial-analysis.html#cb69-5" tabindex="-1"></a>Region_B_up <span class="ot">&lt;-</span> Region_B_up[<span class="fu">order</span>(Region_B_up<span class="sc">$</span>p_val_adj, <span class="at">decreasing =</span> F), ]</span>
+<span id="cb69-6"><a href="within-slice-spatial-analysis.html#cb69-6" tabindex="-1"></a></span>
+<span id="cb69-7"><a href="within-slice-spatial-analysis.html#cb69-7" tabindex="-1"></a>Region_B_up <span class="sc">%&gt;%</span> head <span class="sc">%&gt;%</span> <span class="fu">kable</span>(<span class="at">caption=</span><span class="st">&quot;Top 5 genes upregulated in Region_B&quot;</span>)</span></code></pre></div>
+<table>
+<caption><span id="tab:unnamed-chunk-23">Table 2.2: </span>Top 5 genes upregulated in Region_B</caption>
+<thead>
+<tr class="header">
+<th align="left"></th>
+<th align="right">p_val</th>
+<th align="right">avg_log2FC</th>
+<th align="right">pct.1</th>
+<th align="right">pct.2</th>
+<th align="right">p_val_adj</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Camk2n1</td>
+<td align="right">0</td>
+<td align="right">1.0698325</td>
+<td align="right">1.000</td>
+<td align="right">1.000</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">Calb1</td>
+<td align="right">0</td>
+<td align="right">2.4065291</td>
+<td align="right">0.939</td>
+<td align="right">0.507</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">Camk2a</td>
+<td align="right">0</td>
+<td align="right">0.7095612</td>
+<td align="right">1.000</td>
+<td align="right">1.000</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">Nptxr</td>
+<td align="right">0</td>
+<td align="right">0.9278529</td>
+<td align="right">1.000</td>
+<td align="right">0.993</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">Lamp5</td>
+<td align="right">0</td>
+<td align="right">1.5576133</td>
+<td align="right">0.978</td>
+<td align="right">0.808</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">Atp1a1</td>
+<td align="right">0</td>
+<td align="right">0.7197658</td>
+<td align="right">1.000</td>
+<td align="right">1.000</td>
+<td align="right">0</td>
+</tr>
+</tbody>
+</table>
+<p><b>note:</b>pct.1 and pct.2 represent the percentage of spots each gene is expressed in within the case and control clusters respectively.</p>
+<div class="sourceCode" id="cb70"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb70-1"><a href="within-slice-spatial-analysis.html#cb70-1" tabindex="-1"></a><span class="co">#Subset for only Region A and B</span></span>
+<span id="cb70-2"><a href="within-slice-spatial-analysis.html#cb70-2" tabindex="-1"></a>RegionA_B <span class="ot">&lt;-</span> <span class="fu">subset</span>(seurat_obj</span>
+<span id="cb70-3"><a href="within-slice-spatial-analysis.html#cb70-3" tabindex="-1"></a>                    , <span class="at">subset =</span> cluster_names <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&quot;Region_A&quot;</span>, <span class="st">&quot;Region_B&quot;</span>) )</span>
+<span id="cb70-4"><a href="within-slice-spatial-analysis.html#cb70-4" tabindex="-1"></a></span>
+<span id="cb70-5"><a href="within-slice-spatial-analysis.html#cb70-5" tabindex="-1"></a><span class="co"># Get expression data for these genes from SCT assay</span></span>
+<span id="cb70-6"><a href="within-slice-spatial-analysis.html#cb70-6" tabindex="-1"></a>expr_for_heatmap <span class="ot">&lt;-</span> <span class="fu">GetAssayData</span>(RegionA_B</span>
+<span id="cb70-7"><a href="within-slice-spatial-analysis.html#cb70-7" tabindex="-1"></a>                                 , <span class="at">assay =</span> <span class="st">&quot;SCT&quot;</span></span>
+<span id="cb70-8"><a href="within-slice-spatial-analysis.html#cb70-8" tabindex="-1"></a>                                 , <span class="at">layer =</span> <span class="st">&quot;data&quot;</span>)[<span class="fu">rownames</span>(Region_B_up)[<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>], ]</span>
+<span id="cb70-9"><a href="within-slice-spatial-analysis.html#cb70-9" tabindex="-1"></a></span>
+<span id="cb70-10"><a href="within-slice-spatial-analysis.html#cb70-10" tabindex="-1"></a></span>
+<span id="cb70-11"><a href="within-slice-spatial-analysis.html#cb70-11" tabindex="-1"></a><span class="co"># Create annotation for clusters</span></span>
+<span id="cb70-12"><a href="within-slice-spatial-analysis.html#cb70-12" tabindex="-1"></a>annotation_col <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb70-13"><a href="within-slice-spatial-analysis.html#cb70-13" tabindex="-1"></a>  <span class="at">Cluster =</span> seurat_obj<span class="sc">@</span>meta.data<span class="sc">$</span>seurat_clusters    <span class="co"># cluster assignments</span></span>
+<span id="cb70-14"><a href="within-slice-spatial-analysis.html#cb70-14" tabindex="-1"></a>  , <span class="at">Spatial_X =</span> seurat_obj<span class="sc">@</span>meta.data<span class="sc">$</span>spatial_x      <span class="co"># x coordinates</span></span>
+<span id="cb70-15"><a href="within-slice-spatial-analysis.html#cb70-15" tabindex="-1"></a>  , <span class="at">Spatial_Y =</span> seurat_obj<span class="sc">@</span>meta.data<span class="sc">$</span>spatial_y      <span class="co"># y coordinates</span></span>
+<span id="cb70-16"><a href="within-slice-spatial-analysis.html#cb70-16" tabindex="-1"></a>)</span>
+<span id="cb70-17"><a href="within-slice-spatial-analysis.html#cb70-17" tabindex="-1"></a><span class="fu">rownames</span>(annotation_col) <span class="ot">&lt;-</span> <span class="fu">colnames</span>(seurat_obj)</span>
+<span id="cb70-18"><a href="within-slice-spatial-analysis.html#cb70-18" tabindex="-1"></a></span>
+<span id="cb70-19"><a href="within-slice-spatial-analysis.html#cb70-19" tabindex="-1"></a><span class="co"># Create heatmap</span></span>
+<span id="cb70-20"><a href="within-slice-spatial-analysis.html#cb70-20" tabindex="-1"></a><span class="fu">pheatmap</span>(</span>
+<span id="cb70-21"><a href="within-slice-spatial-analysis.html#cb70-21" tabindex="-1"></a>    expr_for_heatmap                                 <span class="co"># expression matrix</span></span>
+<span id="cb70-22"><a href="within-slice-spatial-analysis.html#cb70-22" tabindex="-1"></a>    , <span class="at">cluster_rows =</span> <span class="cn">FALSE</span>                           <span class="co"># don&#39;t cluster rows</span></span>
+<span id="cb70-23"><a href="within-slice-spatial-analysis.html#cb70-23" tabindex="-1"></a>    , <span class="at">cluster_cols =</span> <span class="cn">TRUE</span>                            <span class="co"># cluster columns</span></span>
+<span id="cb70-24"><a href="within-slice-spatial-analysis.html#cb70-24" tabindex="-1"></a>    , <span class="at">annotation_col =</span> annotation_col                <span class="co"># column annotations</span></span>
+<span id="cb70-25"><a href="within-slice-spatial-analysis.html#cb70-25" tabindex="-1"></a>    , <span class="at">show_colnames =</span> <span class="cn">FALSE</span>                          <span class="co"># hide column names</span></span>
+<span id="cb70-26"><a href="within-slice-spatial-analysis.html#cb70-26" tabindex="-1"></a>    , <span class="at">main =</span> <span class="st">&quot;Expression of Top Differential Genes (SCT-normalized)&quot;</span>  <span class="co"># title</span></span>
+<span id="cb70-27"><a href="within-slice-spatial-analysis.html#cb70-27" tabindex="-1"></a>    , <span class="at">fontsize_row =</span> <span class="dv">10</span>                              <span class="co"># row font size</span></span>
+<span id="cb70-28"><a href="within-slice-spatial-analysis.html#cb70-28" tabindex="-1"></a>    , <span class="at">color =</span> viridis<span class="sc">::</span><span class="fu">viridis</span>(<span class="dv">100</span>)                  <span class="co"># color palette</span></span>
+<span id="cb70-29"><a href="within-slice-spatial-analysis.html#cb70-29" tabindex="-1"></a>)</span></code></pre></div>
+<p><img src="spatial-transcriptomics-workflow_files/figure-html/unnamed-chunk-24-1.png" alt="" width="960" /></p>
+<div class="sourceCode" id="cb71"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb71-1"><a href="within-slice-spatial-analysis.html#cb71-1" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Total differentially expressed genes:&quot;</span>, <span class="fu">nrow</span>(de_markers)</span>
+<span id="cb71-2"><a href="within-slice-spatial-analysis.html#cb71-2" tabindex="-1"></a>    , <span class="fu">paste</span>(<span class="st">&quot;</span><span class="sc">\n</span><span class="st">Genes upregulated in cluster 0:&quot;</span>, <span class="fu">sum</span>(de_markers<span class="sc">$</span>avg_log2FC <span class="sc">&gt;</span> <span class="dv">0</span>))</span>
+<span id="cb71-3"><a href="within-slice-spatial-analysis.html#cb71-3" tabindex="-1"></a>    , <span class="fu">paste</span>(<span class="st">&quot;</span><span class="sc">\n</span><span class="st">Genes upregulated in cluster 1:&quot;</span>, <span class="fu">sum</span>(de_markers<span class="sc">$</span>avg_log2FC <span class="sc">&lt;</span> <span class="dv">0</span>))</span>
+<span id="cb71-4"><a href="within-slice-spatial-analysis.html#cb71-4" tabindex="-1"></a>    , <span class="fu">paste</span>(<span class="st">&quot;</span><span class="sc">\n</span><span class="st">Significantly different genes (adj p &lt; 0.05):&quot;</span>, <span class="fu">sum</span>(de_markers<span class="sc">$</span>p_val_adj <span class="sc">&lt;</span> <span class="fl">0.05</span>))</span>
+<span id="cb71-5"><a href="within-slice-spatial-analysis.html#cb71-5" tabindex="-1"></a>    , <span class="fu">paste</span>(<span class="st">&quot;</span><span class="sc">\n</span><span class="st">Highly significant genes (p &lt; 0.001):&quot;</span>, <span class="fu">sum</span>(de_markers<span class="sc">$</span>p_val_adj <span class="sc">&lt;</span> <span class="fl">0.001</span>))</span>
+<span id="cb71-6"><a href="within-slice-spatial-analysis.html#cb71-6" tabindex="-1"></a>    , <span class="fu">paste</span>(<span class="st">&quot;</span><span class="sc">\n</span><span class="st">Genes with logFC &gt; 1:&quot;</span>, <span class="fu">sum</span>(<span class="fu">abs</span>(de_markers<span class="sc">$</span>avg_log2FC) <span class="sc">&gt;</span> <span class="dv">1</span>))</span>
+<span id="cb71-7"><a href="within-slice-spatial-analysis.html#cb71-7" tabindex="-1"></a>)</span></code></pre></div>
+<pre><code>## Total differentially expressed genes: 4053 
+## Genes upregulated in cluster 0: 1130 
+## Genes upregulated in cluster 1: 2923 
+## Significantly different genes (adj p &lt; 0.05): 846 
+## Highly significant genes (p &lt; 0.001): 637 
+## Genes with logFC &gt; 1: 308</code></pre>
+<p><strong>Note:</strong> Here I have subsetted for only Region A and Region B</p>
+<div class="sourceCode" id="cb73"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb73-1"><a href="within-slice-spatial-analysis.html#cb73-1" tabindex="-1"></a>demarkerplot <span class="ot">&lt;-</span> <span class="fu">SpatialFeaturePlot</span>(<span class="at">object =</span> seurat_obj</span>
+<span id="cb73-2"><a href="within-slice-spatial-analysis.html#cb73-2" tabindex="-1"></a>                                   , <span class="at">features =</span> <span class="fu">rownames</span>(de_markers)[<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>]</span>
+<span id="cb73-3"><a href="within-slice-spatial-analysis.html#cb73-3" tabindex="-1"></a>                                   , <span class="at">alpha =</span> <span class="fu">c</span>(<span class="fl">0.1</span>, <span class="dv">1</span>)</span>
+<span id="cb73-4"><a href="within-slice-spatial-analysis.html#cb73-4" tabindex="-1"></a>                                   , <span class="at">ncol =</span> <span class="dv">3</span></span>
+<span id="cb73-5"><a href="within-slice-spatial-analysis.html#cb73-5" tabindex="-1"></a>                   )</span>
+<span id="cb73-6"><a href="within-slice-spatial-analysis.html#cb73-6" tabindex="-1"></a></span>
+<span id="cb73-7"><a href="within-slice-spatial-analysis.html#cb73-7" tabindex="-1"></a>clusterplot <span class="ot">&lt;-</span> <span class="fu">SpatialDimPlot</span>(seurat_obj, <span class="at">cells.highlight =</span> <span class="fu">CellsByIdentities</span>(<span class="at">object =</span> seurat_obj, <span class="at">idents =</span> <span class="fu">c</span>(<span class="st">&quot;Region_A&quot;</span>, <span class="st">&quot;Region_B&quot;</span>)), <span class="at">facet.highlight =</span> <span class="cn">TRUE</span>, <span class="at">ncol =</span> <span class="dv">3</span>)</span>
+<span id="cb73-8"><a href="within-slice-spatial-analysis.html#cb73-8" tabindex="-1"></a></span>
+<span id="cb73-9"><a href="within-slice-spatial-analysis.html#cb73-9" tabindex="-1"></a>demarkerplot <span class="sc">/</span> clusterplot</span></code></pre></div>
+<p><img src="spatial-transcriptomics-workflow_files/figure-html/unnamed-chunk-25-1.png" alt="" width="960" /></p>
+</div>
+<div id="top-de-markers-for-all-clusters" class="section level4 hasAnchor" number="2.2.2.2">
+<h4><span class="header-section-number">2.2.2.2</span> <strong>Top DE Markers for ALL clusters</strong><a href="within-slice-spatial-analysis.html#top-de-markers-for-all-clusters" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>For the public GitBook render, this demonstration uses the top variable features and caps the number of spots sampled per region. Remove <code>features</code> or increase <code>max.cells.per.ident</code> for a more exhaustive local analysis.</p>
+<div class="sourceCode" id="cb74"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb74-1"><a href="within-slice-spatial-analysis.html#cb74-1" tabindex="-1"></a>marker_features <span class="ot">&lt;-</span> <span class="fu">head</span>(<span class="fu">VariableFeatures</span>(seurat_obj), <span class="dv">500</span>)</span>
+<span id="cb74-2"><a href="within-slice-spatial-analysis.html#cb74-2" tabindex="-1"></a></span>
+<span id="cb74-3"><a href="within-slice-spatial-analysis.html#cb74-3" tabindex="-1"></a>de_markers_all<span class="ot">&lt;-</span> <span class="fu">FindAllMarkers</span>(</span>
+<span id="cb74-4"><a href="within-slice-spatial-analysis.html#cb74-4" tabindex="-1"></a>    seurat_obj                    </span>
+<span id="cb74-5"><a href="within-slice-spatial-analysis.html#cb74-5" tabindex="-1"></a>    , <span class="at">features =</span> marker_features</span>
+<span id="cb74-6"><a href="within-slice-spatial-analysis.html#cb74-6" tabindex="-1"></a>    , <span class="at">test.use =</span> <span class="st">&quot;wilcox&quot;</span>          <span class="co"># Statistical test method (Wilcoxon rank-sum test)</span></span>
+<span id="cb74-7"><a href="within-slice-spatial-analysis.html#cb74-7" tabindex="-1"></a>    , <span class="at">only.pos =</span> <span class="cn">TRUE</span>              <span class="co"># Only return upregulated/positive markers  </span></span>
+<span id="cb74-8"><a href="within-slice-spatial-analysis.html#cb74-8" tabindex="-1"></a>    , <span class="at">min.pct =</span> <span class="fl">0.25</span>               <span class="co"># Minimum percentage of cells expressing the gene</span></span>
+<span id="cb74-9"><a href="within-slice-spatial-analysis.html#cb74-9" tabindex="-1"></a>    , <span class="at">logfc.threshold =</span> <span class="fl">0.25</span>        <span class="co"># Minimum log fold-change threshold for testing</span></span>
+<span id="cb74-10"><a href="within-slice-spatial-analysis.html#cb74-10" tabindex="-1"></a>    , <span class="at">max.cells.per.ident =</span> <span class="dv">250</span>     <span class="co"># Keep public GitBook renders tractable</span></span>
+<span id="cb74-11"><a href="within-slice-spatial-analysis.html#cb74-11" tabindex="-1"></a>)</span>
+<span id="cb74-12"><a href="within-slice-spatial-analysis.html#cb74-12" tabindex="-1"></a></span>
+<span id="cb74-13"><a href="within-slice-spatial-analysis.html#cb74-13" tabindex="-1"></a><span class="co"># Top most significantly expressed gene for each region</span></span>
+<span id="cb74-14"><a href="within-slice-spatial-analysis.html#cb74-14" tabindex="-1"></a>top_genes_pval <span class="ot">&lt;-</span> de_markers_all <span class="sc">%&gt;%</span> <span class="fu">arrange</span>(p_val_adj) <span class="sc">%&gt;%</span> <span class="fu">distinct</span>(cluster, <span class="at">.keep_all =</span> T) <span class="sc">%&gt;%</span> </span>
+<span id="cb74-15"><a href="within-slice-spatial-analysis.html#cb74-15" tabindex="-1"></a>  <span class="fu">select</span>(gene, avg_log2FC, p_val_adj, cluster  )</span>
+<span id="cb74-16"><a href="within-slice-spatial-analysis.html#cb74-16" tabindex="-1"></a></span>
+<span id="cb74-17"><a href="within-slice-spatial-analysis.html#cb74-17" tabindex="-1"></a>top_genes_pval <span class="sc">%&gt;%</span> knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">caption=</span><span class="st">&quot;Top most significantly expressed gene for each region&quot;</span>)</span></code></pre></div>
+<table>
+<caption><span id="tab:unnamed-chunk-26">Table 2.3: </span>Top most significantly expressed gene for each region</caption>
+<thead>
+<tr class="header">
+<th align="left"></th>
+<th align="left">gene</th>
+<th align="right">avg_log2FC</th>
+<th align="right">p_val_adj</th>
+<th align="left">cluster</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Camk2n1</td>
+<td align="left">Camk2n1</td>
+<td align="right">1.402586</td>
+<td align="right">0</td>
+<td align="left">Region_B</td>
+</tr>
+<tr class="even">
+<td align="left">Doc2g</td>
+<td align="left">Doc2g</td>
+<td align="right">4.280877</td>
+<td align="right">0</td>
+<td align="left">Region_G</td>
+</tr>
+<tr class="odd">
+<td align="left">Mbp1</td>
+<td align="left">Mbp</td>
+<td align="right">2.631323</td>
+<td align="right">0</td>
+<td align="left">Region_F</td>
+</tr>
+<tr class="even">
+<td align="left">Penk1</td>
+<td align="left">Penk</td>
+<td align="right">2.744657</td>
+<td align="right">0</td>
+<td align="left">Region_E</td>
+</tr>
+<tr class="odd">
+<td align="left">3110035E14Rik</td>
+<td align="left">3110035E14Rik</td>
+<td align="right">2.419818</td>
+<td align="right">0</td>
+<td align="left">Region_A</td>
+</tr>
+<tr class="even">
+<td align="left">Gpr88</td>
+<td align="left">Gpr88</td>
+<td align="right">2.654382</td>
+<td align="right">0</td>
+<td align="left">Region_C</td>
+</tr>
+<tr class="odd">
+<td align="left">Shisa81</td>
+<td align="left">Shisa8</td>
+<td align="right">3.757907</td>
+<td align="right">0</td>
+<td align="left">Region_K</td>
+</tr>
+<tr class="even">
+<td align="left">Baiap31</td>
+<td align="left">Baiap3</td>
+<td align="right">4.281899</td>
+<td align="right">0</td>
+<td align="left">Region_H</td>
+</tr>
+<tr class="odd">
+<td align="left">Sparc2</td>
+<td align="left">Sparc</td>
+<td align="right">2.088284</td>
+<td align="right">0</td>
+<td align="left">Region_J</td>
+</tr>
+<tr class="even">
+<td align="left">Ttc9b2</td>
+<td align="left">Ttc9b</td>
+<td align="right">1.395609</td>
+<td align="right">0</td>
+<td align="left">Region_I</td>
+</tr>
+<tr class="odd">
+<td align="left">Ptgds</td>
+<td align="left">Ptgds</td>
+<td align="right">2.902846</td>
+<td align="right">0</td>
+<td align="left">Region_D</td>
+</tr>
+<tr class="even">
+<td align="left">2900040C04Rik</td>
+<td align="left">2900040C04Rik</td>
+<td align="right">6.244505</td>
+<td align="right">0</td>
+<td align="left">Region_M</td>
+</tr>
+<tr class="odd">
+<td align="left">Fabp72</td>
+<td align="left">Fabp7</td>
+<td align="right">3.950137</td>
+<td align="right">0</td>
+<td align="left">Region_L</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb75"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb75-1"><a href="within-slice-spatial-analysis.html#cb75-1" tabindex="-1"></a><span class="co"># Plot top significant genes (by p-value)</span></span>
+<span id="cb75-2"><a href="within-slice-spatial-analysis.html#cb75-2" tabindex="-1"></a>demarkerplot <span class="ot">&lt;-</span> <span class="fu">SpatialFeaturePlot</span>(seurat_obj, </span>
+<span id="cb75-3"><a href="within-slice-spatial-analysis.html#cb75-3" tabindex="-1"></a>                   , <span class="at">features =</span> top_genes_pval<span class="sc">$</span>gene[<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>]</span>
+<span id="cb75-4"><a href="within-slice-spatial-analysis.html#cb75-4" tabindex="-1"></a>                   , <span class="at">ncol =</span> <span class="dv">3</span>                    <span class="co"># Adjust columns based on number of clusters</span></span>
+<span id="cb75-5"><a href="within-slice-spatial-analysis.html#cb75-5" tabindex="-1"></a>                   , <span class="at">alpha =</span> <span class="fu">c</span>(<span class="fl">0.1</span>, <span class="dv">1</span>)          <span class="co"># Transparency settings</span></span>
+<span id="cb75-6"><a href="within-slice-spatial-analysis.html#cb75-6" tabindex="-1"></a>                   , <span class="at">max.cutoff =</span> <span class="st">&quot;q95&quot;</span></span>
+<span id="cb75-7"><a href="within-slice-spatial-analysis.html#cb75-7" tabindex="-1"></a>                   ) </span>
+<span id="cb75-8"><a href="within-slice-spatial-analysis.html#cb75-8" tabindex="-1"></a>  </span>
+<span id="cb75-9"><a href="within-slice-spatial-analysis.html#cb75-9" tabindex="-1"></a>clusterplot <span class="ot">&lt;-</span> <span class="fu">SpatialDimPlot</span>(seurat_obj, <span class="at">cells.highlight =</span> <span class="fu">CellsByIdentities</span>(<span class="at">object =</span> seurat_obj, <span class="at">idents =</span> <span class="fu">c</span>(<span class="st">&quot;Region_A&quot;</span>, <span class="st">&quot;Region_J&quot;</span>, <span class="st">&quot;Region_G&quot;</span>)), <span class="at">facet.highlight =</span> <span class="cn">TRUE</span>, <span class="at">ncol =</span> <span class="dv">3</span>)</span>
+<span id="cb75-10"><a href="within-slice-spatial-analysis.html#cb75-10" tabindex="-1"></a></span>
+<span id="cb75-11"><a href="within-slice-spatial-analysis.html#cb75-11" tabindex="-1"></a>demarkerplot <span class="sc">/</span> clusterplot</span></code></pre></div>
+<p><img src="spatial-transcriptomics-workflow_files/figure-html/unnamed-chunk-27-1.png" alt="" width="960" /></p>
+</div>
+</div>
+<div id="hybrid-approach" class="section level3 hasAnchor" number="2.2.3">
+<h3><span class="header-section-number">2.2.3</span> 2.3 Hybrid Approach<a href="within-slice-spatial-analysis.html#hybrid-approach" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p><strong>Best practice</strong>: A hybrid approach that combines location-based and
+differential expression-based markers is considered best practice.</p>
+<div class="sourceCode" id="cb76"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb76-1"><a href="within-slice-spatial-analysis.html#cb76-1" tabindex="-1"></a><span class="co"># Step 1: Discover spatially variable genes (unbiased)</span></span>
+<span id="cb76-2"><a href="within-slice-spatial-analysis.html#cb76-2" tabindex="-1"></a>hybrid_features <span class="ot">&lt;-</span> <span class="fu">head</span>(<span class="fu">VariableFeatures</span>(seurat_obj), <span class="dv">500</span>)</span>
+<span id="cb76-3"><a href="within-slice-spatial-analysis.html#cb76-3" tabindex="-1"></a></span>
+<span id="cb76-4"><a href="within-slice-spatial-analysis.html#cb76-4" tabindex="-1"></a>seurat_obj <span class="ot">&lt;-</span> <span class="fu">FindSpatiallyVariableFeatures</span>(seurat_obj</span>
+<span id="cb76-5"><a href="within-slice-spatial-analysis.html#cb76-5" tabindex="-1"></a>                                           , <span class="at">assay =</span> <span class="st">&quot;SCT&quot;</span></span>
+<span id="cb76-6"><a href="within-slice-spatial-analysis.html#cb76-6" tabindex="-1"></a>                                           , <span class="at">features =</span> hybrid_features</span>
+<span id="cb76-7"><a href="within-slice-spatial-analysis.html#cb76-7" tabindex="-1"></a>                                           , <span class="at">selection.method =</span> <span class="st">&quot;moransi&quot;</span></span>
+<span id="cb76-8"><a href="within-slice-spatial-analysis.html#cb76-8" tabindex="-1"></a>                                           )</span>
+<span id="cb76-9"><a href="within-slice-spatial-analysis.html#cb76-9" tabindex="-1"></a></span>
+<span id="cb76-10"><a href="within-slice-spatial-analysis.html#cb76-10" tabindex="-1"></a><span class="co"># Step 2: Test top spatial genes between anatomical regions</span></span>
+<span id="cb76-11"><a href="within-slice-spatial-analysis.html#cb76-11" tabindex="-1"></a>top_spatial <span class="ot">&lt;-</span> <span class="fu">head</span>(<span class="fu">SpatiallyVariableFeatures</span>(seurat_obj, <span class="at">method =</span> <span class="st">&quot;moransi&quot;</span>),<span class="dv">50</span>)</span>
+<span id="cb76-12"><a href="within-slice-spatial-analysis.html#cb76-12" tabindex="-1"></a></span>
+<span id="cb76-13"><a href="within-slice-spatial-analysis.html#cb76-13" tabindex="-1"></a>de_markers_all<span class="ot">&lt;-</span> <span class="fu">FindAllMarkers</span>(</span>
+<span id="cb76-14"><a href="within-slice-spatial-analysis.html#cb76-14" tabindex="-1"></a>    seurat_obj                  </span>
+<span id="cb76-15"><a href="within-slice-spatial-analysis.html#cb76-15" tabindex="-1"></a>    , <span class="at">features =</span> top_spatial</span>
+<span id="cb76-16"><a href="within-slice-spatial-analysis.html#cb76-16" tabindex="-1"></a>    , <span class="at">test.use =</span> <span class="st">&quot;wilcox&quot;</span>          <span class="co"># Statistical test method (Wilcoxon rank-sum test)</span></span>
+<span id="cb76-17"><a href="within-slice-spatial-analysis.html#cb76-17" tabindex="-1"></a>    , <span class="at">only.pos =</span> <span class="cn">TRUE</span>              <span class="co"># Only return upregulated/positive markers  </span></span>
+<span id="cb76-18"><a href="within-slice-spatial-analysis.html#cb76-18" tabindex="-1"></a>    , <span class="at">min.pct =</span> <span class="fl">0.25</span>               <span class="co"># Minimum percentage of cells expressing the gene</span></span>
+<span id="cb76-19"><a href="within-slice-spatial-analysis.html#cb76-19" tabindex="-1"></a>    , <span class="at">logfc.threshold =</span> <span class="fl">0.25</span>        <span class="co"># Minimum log fold-change threshold for testing</span></span>
+<span id="cb76-20"><a href="within-slice-spatial-analysis.html#cb76-20" tabindex="-1"></a>    , <span class="at">max.cells.per.ident =</span> <span class="dv">250</span>     <span class="co"># Keep public GitBook renders tractable</span></span>
+<span id="cb76-21"><a href="within-slice-spatial-analysis.html#cb76-21" tabindex="-1"></a>)</span></code></pre></div>
+<div class="sourceCode" id="cb77"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb77-1"><a href="within-slice-spatial-analysis.html#cb77-1" tabindex="-1"></a><span class="co"># Top most significantly expressed gene for each region</span></span>
+<span id="cb77-2"><a href="within-slice-spatial-analysis.html#cb77-2" tabindex="-1"></a>top_genes_pval <span class="ot">&lt;-</span> de_markers_all <span class="sc">%&gt;%</span> <span class="fu">arrange</span>(p_val_adj) <span class="sc">%&gt;%</span> <span class="fu">distinct</span>(cluster, <span class="at">.keep_all =</span> T) <span class="sc">%&gt;%</span> </span>
+<span id="cb77-3"><a href="within-slice-spatial-analysis.html#cb77-3" tabindex="-1"></a>  <span class="fu">select</span>(gene, avg_log2FC, p_val_adj, cluster  )</span>
+<span id="cb77-4"><a href="within-slice-spatial-analysis.html#cb77-4" tabindex="-1"></a></span>
+<span id="cb77-5"><a href="within-slice-spatial-analysis.html#cb77-5" tabindex="-1"></a>top_genes_pval <span class="sc">%&gt;%</span> knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">caption=</span><span class="st">&quot;Top most significantly expressed gene for each region&quot;</span>)</span></code></pre></div>
+<table>
+<caption><span id="tab:unnamed-chunk-29">Table 2.4: </span>Top most significantly expressed gene for each region</caption>
+<thead>
+<tr class="header">
+<th align="left"></th>
+<th align="left">gene</th>
+<th align="right">avg_log2FC</th>
+<th align="right">p_val_adj</th>
+<th align="left">cluster</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Camk2n1</td>
+<td align="left">Camk2n1</td>
+<td align="right">1.4025857</td>
+<td align="right">0</td>
+<td align="left">Region_B</td>
+</tr>
+<tr class="even">
+<td align="left">Doc2g</td>
+<td align="left">Doc2g</td>
+<td align="right">4.2808767</td>
+<td align="right">0</td>
+<td align="left">Region_G</td>
+</tr>
+<tr class="odd">
+<td align="left">Mbp1</td>
+<td align="left">Mbp</td>
+<td align="right">2.6313231</td>
+<td align="right">0</td>
+<td align="left">Region_F</td>
+</tr>
+<tr class="even">
+<td align="left">Penk1</td>
+<td align="left">Penk</td>
+<td align="right">2.7446572</td>
+<td align="right">0</td>
+<td align="left">Region_E</td>
+</tr>
+<tr class="odd">
+<td align="left">3110035E14Rik</td>
+<td align="left">3110035E14Rik</td>
+<td align="right">2.4198182</td>
+<td align="right">0</td>
+<td align="left">Region_A</td>
+</tr>
+<tr class="even">
+<td align="left">Gpr88</td>
+<td align="left">Gpr88</td>
+<td align="right">2.6543818</td>
+<td align="right">0</td>
+<td align="left">Region_C</td>
+</tr>
+<tr class="odd">
+<td align="left">Shisa81</td>
+<td align="left">Shisa8</td>
+<td align="right">3.7579074</td>
+<td align="right">0</td>
+<td align="left">Region_K</td>
+</tr>
+<tr class="even">
+<td align="left">Hap11</td>
+<td align="left">Hap1</td>
+<td align="right">2.5354517</td>
+<td align="right">0</td>
+<td align="left">Region_H</td>
+</tr>
+<tr class="odd">
+<td align="left">mt-Co1</td>
+<td align="left">mt-Co1</td>
+<td align="right">0.6538976</td>
+<td align="right">0</td>
+<td align="left">Region_D</td>
+</tr>
+<tr class="even">
+<td align="left">Olfm12</td>
+<td align="left">Olfm1</td>
+<td align="right">1.3408034</td>
+<td align="right">0</td>
+<td align="left">Region_I</td>
+</tr>
+<tr class="odd">
+<td align="left">Fabp72</td>
+<td align="left">Fabp7</td>
+<td align="right">3.9501373</td>
+<td align="right">0</td>
+<td align="left">Region_L</td>
+</tr>
+<tr class="even">
+<td align="left">Fth12</td>
+<td align="left">Fth1</td>
+<td align="right">0.7383636</td>
+<td align="right">0</td>
+<td align="left">Region_J</td>
+</tr>
+<tr class="odd">
+<td align="left">Ttr2</td>
+<td align="left">Ttr</td>
+<td align="right">6.3966124</td>
+<td align="right">0</td>
+<td align="left">Region_M</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb78"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb78-1"><a href="within-slice-spatial-analysis.html#cb78-1" tabindex="-1"></a><span class="co"># Plot top significant genes (by p-value)</span></span>
+<span id="cb78-2"><a href="within-slice-spatial-analysis.html#cb78-2" tabindex="-1"></a>demarkerplot <span class="ot">&lt;-</span> <span class="fu">SpatialFeaturePlot</span>(seurat_obj, </span>
+<span id="cb78-3"><a href="within-slice-spatial-analysis.html#cb78-3" tabindex="-1"></a>                   , <span class="at">features =</span> top_genes_pval<span class="sc">$</span>gene[<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>]</span>
+<span id="cb78-4"><a href="within-slice-spatial-analysis.html#cb78-4" tabindex="-1"></a>                   , <span class="at">ncol =</span> <span class="dv">3</span>                    <span class="co"># Adjust columns based on number of clusters</span></span>
+<span id="cb78-5"><a href="within-slice-spatial-analysis.html#cb78-5" tabindex="-1"></a>                   , <span class="at">alpha =</span> <span class="fu">c</span>(<span class="fl">0.1</span>, <span class="dv">1</span>)          <span class="co"># Transparency settings</span></span>
+<span id="cb78-6"><a href="within-slice-spatial-analysis.html#cb78-6" tabindex="-1"></a>                   , <span class="at">max.cutoff =</span> <span class="st">&quot;q95&quot;</span></span>
+<span id="cb78-7"><a href="within-slice-spatial-analysis.html#cb78-7" tabindex="-1"></a>                   ) </span>
+<span id="cb78-8"><a href="within-slice-spatial-analysis.html#cb78-8" tabindex="-1"></a>  </span>
+<span id="cb78-9"><a href="within-slice-spatial-analysis.html#cb78-9" tabindex="-1"></a>clusterplot <span class="ot">&lt;-</span> <span class="fu">SpatialDimPlot</span>(seurat_obj, <span class="at">cells.highlight =</span> <span class="fu">CellsByIdentities</span>(<span class="at">object =</span> seurat_obj, <span class="at">idents =</span> <span class="fu">c</span>(<span class="st">&quot;Region_G&quot;</span>, <span class="st">&quot;Region_A&quot;</span>, <span class="st">&quot;Region_B&quot;</span>)), <span class="at">facet.highlight =</span> <span class="cn">TRUE</span>, <span class="at">ncol =</span> <span class="dv">3</span>)</span>
+<span id="cb78-10"><a href="within-slice-spatial-analysis.html#cb78-10" tabindex="-1"></a></span>
+<span id="cb78-11"><a href="within-slice-spatial-analysis.html#cb78-11" tabindex="-1"></a>demarkerplot <span class="sc">/</span> clusterplot</span></code></pre></div>
+<p><img src="spatial-transcriptomics-workflow_files/figure-html/unnamed-chunk-29-1.png" alt="" width="960" /></p>
+<div class="sourceCode" id="cb79"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb79-1"><a href="within-slice-spatial-analysis.html#cb79-1" tabindex="-1"></a>loc <span class="ot">&lt;-</span> <span class="st">&quot;cache/stxBrain_anterior2_processed_1.RDS&quot;</span></span>
+<span id="cb79-2"><a href="within-slice-spatial-analysis.html#cb79-2" tabindex="-1"></a><span class="cf">if</span>(<span class="sc">!</span><span class="fu">file.exists</span>(loc) ) {<span class="fu">saveRDS</span>(seurat_obj, loc)}</span></code></pre></div>
+
+</div>
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="quality-control-and-preprocessing.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="integration-deconvolution-using-single-cell-data.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+  "sharing": {
+    "github": true,
+    "facebook": false,
+    "twitter": false,
+    "linkedin": false,
+    "weibo": false,
+    "instapaper": false,
+    "vk": false,
+    "whatsapp": false,
+    "all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+  },
+  "fontsettings": {
+    "theme": "white",
+    "family": "sans",
+    "size": 2
+  },
+  "edit": {
+    "link": null,
+    "text": null
+  },
+  "history": {
+    "link": null,
+    "text": null
+  },
+  "view": {
+    "link": null,
+    "text": null
+  },
+  "download": null,
+  "search": {
+    "engine": "fuse",
+    "options": null
+  },
+  "toc": {
+    "collapse": "section",
+    "scroll_highlight": true
+  },
+  "toolbar": {
+    "position": "fixed"
+  }
+});
+});
+</script>
+
+</body>
+
+</html>
